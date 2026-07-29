@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Surface & Base Neutrals */
+  --bg: #F8F9FB;
+  --surface: #FFFFFF;
+  --border: #E4E7EC;
+
+  /* Typography Colors */
+  --text-primary: #101828;
+  --text-secondary: #475467;
+  --text-muted: #98A2B3;
+
+  /* Trustworthy Deep Blue-Teal Brand Palette */
+  --brand-50: #EEF6FF;
+  --brand-500: #2E6F95;
+  --brand-600: #24586F;
+  --brand-700: #1B4353;
+
+  /* Semantic Claim Workflow Status Colors */
+  --status-submitted: #667085;
+  --status-submitted-bg: #F2F4F7;
+
+  --status-review: #B54708;
+  --status-review-bg: #FFFAEB;
+
+  --status-revision: #B93815;
+  --status-revision-bg: #FEF3F2;
+
+  --status-approved: #067647;
+  --status-approved-bg: #ECFDF3;
+
+  --status-partial: #3E7C0A;
+  --status-partial-bg: #F4FBEA;
+
+  --status-rejected: #B42318;
+  --status-rejected-bg: #FEF3F2;
+
+  --status-paid: #175CD3;
+  --status-paid-bg: #EFF8FF;
+
+  --status-flagged: #DC2626;
+  --status-flagged-bg: #FEF2F2;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-inter), sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
