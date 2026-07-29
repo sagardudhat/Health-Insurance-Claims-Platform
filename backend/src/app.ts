@@ -5,7 +5,10 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { buildSuccess, buildError } from './utils';
-import { AppError } from './errors';
+import { authRoutes } from './routes/auth.routes';
+import { claimRoutes } from './routes/claim.routes';
+import { reviewerRoutes } from './routes/reviewer.routes';
+import { adminRoutes } from './routes/admin.routes';
 
 dotenv.config();
 
@@ -21,7 +24,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Health Check Endpoint
 app.get('/api/health', (req: Request, res: Response) => {
-  const dbState = mongoose.connection.readyState; // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  const dbState = mongoose.connection.readyState;
   res.status(200).json(
     buildSuccess(
       {
@@ -33,6 +36,12 @@ app.get('/api/health', (req: Request, res: Response) => {
     )
   );
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/claims', claimRoutes);
+app.use('/api/reviewer', reviewerRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 Handler for undefined routes
 app.use((req: Request, res: Response) => {

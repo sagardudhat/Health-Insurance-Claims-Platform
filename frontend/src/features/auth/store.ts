@@ -1,33 +1,110 @@
 import { create } from 'zustand';
-
-export type UserRole = 'provider' | 'reviewer' | 'admin';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  status: 'active' | 'suspended';
-}
+import { User } from './types';
 
 interface AuthState {
   user: User | null;
   token: string | null;
+  setAuth: (user: User, token: string) => void;
   setUser: (user: User | null) => void;
-  setToken: (token: string | null) => void;
   logout: () => void;
 }
 
+// Cookie Helper Utilities
+const setCookie = (name: string, value: string, days = 7) => {
+  if (typeof document !== 'undefined') {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+  }
+};
+
+const getCookie = (name: string): string | null => {
+  if (typeof document === 'undefined') return null;
+  const nameEQ = name + '=';
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+  }
+  return null;
+};
+
+const deleteCookie = (name: string) => {
+  if (typeof document !== 'undefined') {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+  }
+};
+
+const getInitialToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    const cookieToken = getCookie('token');
+    if (cookieToken) return cookieToken;
+    return localStorage.getItem('token');
+  }
+  return null;
+};
+
+const getInitialUser = (): User | null => {
+  if (typeof window !== 'undefined') {
+    const cookieUserStr = getCookie('user_data');
+    if (cookieUserStr) {
+      try {
+        return JSON.parse(cookieUserStr);
+      } catch (e) {}
+    }
+    const localUserStr = localStorage.getItem('user');
+    if (localUserStr) {
+      try {
+        return JSON.parse(localUserStr);
+      } catch (e) {}
+    }
+  }
+  return null;
+};
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: {
-    id: 'demo-user-1',
-    name: 'Dr. Sarah Connor',
-    email: 'sarah@healthprovider.com',
-    role: 'provider', // Defaults to provider for initial shell render
-    status: 'active',
+  user: getInitialUser(),
+  token: getInitialToken(),
+  setAuth: (user, token) => {
+    if (typeof window !== 'undefined') {
+      const userJson = JSON.stringify(user);
+      // Persist in Cookies (7 days expiry)
+      setCookie('token', token, 7);
+      setCookie('user_data', userJson, 7);
+      setCookie('user_role', user.role, 7);
+
+      // Backup persist in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', userJson);
+    }
+    set({ user, token });
   },
-  token: null,
-  setUser: (user) => set({ user }),
-  setToken: (token) => set({ token }),
-  logout: () => set({ user: null, token: null }),
+  setUser: (user) => {
+    if (typeof window !== 'undefined') {
+      if (user) {
+        const userJson = JSON.stringify(user);
+        setCookie('user_data', userJson, 7);
+        setCookie('user_role', user.role, 7);
+        localStorage.setItem('user', userJson);
+      } else {
+        deleteCookie('user_data');
+        deleteCookie('user_role');
+        localStorage.removeItem('user');
+      }
+    }
+    set({ user });
+  },
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      // Clear all auth cookies
+      deleteCookie('token');
+      deleteCookie('user_data');
+      deleteCookie('user_role');
+
+      // Clear localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    set({ user: null, token: null });
+  },
 }));
