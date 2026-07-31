@@ -13,10 +13,13 @@ import {
   Shield,
   AlertCircle,
   ArrowRight,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 export const RegisterForm = () => {
   const [isRedirecting, setIsRedirecting] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
   const { mutate: registerUser, isPending, error: registerError } = useRegister();
 
   const {
@@ -117,10 +120,18 @@ export const RegisterForm = () => {
             <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
             <input
               {...register('password')}
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="At least 6 characters"
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
+              className="w-full pl-9 pr-10 py-2 text-sm rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors p-0.5 rounded"
+              title={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
           </div>
           {errors.password && (
             <p className="text-xs text-red-600 font-medium">{errors.password.message}</p>
