@@ -121,7 +121,7 @@ export const RegisterForm = () => {
             <input
               {...register('password')}
               type={showPassword ? 'text' : 'password'}
-              placeholder="At least 6 characters"
+              placeholder="e.g. Test@123 (Min 8 chars, 1 uppercase, 1 symbol)"
               className="w-full pl-9 pr-10 py-2 text-sm rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
             />
             <button
