@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { adminApi } from './api';
+import { adminApi, PolicyConfig } from './api';
 
 export const useAdminDashboardStats = (params?: { range?: string; from?: string; to?: string }) => {
   return useQuery({
@@ -56,5 +56,24 @@ export const useAdminAllClaims = (params?: {
   return useQuery({
     queryKey: ['adminAllClaims', params],
     queryFn: () => adminApi.getAllClaims(params),
+  });
+};
+
+export const usePolicyConfig = (year?: number) => {
+  return useQuery({
+    queryKey: ['adminConfig', year],
+    queryFn: () => adminApi.getPolicyConfig(year),
+  });
+};
+
+export const useUpdatePolicyConfig = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminApi.updatePolicyConfig,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['adminConfig'] });
+      queryClient.setQueryData(['adminConfig', data.year], data);
+    },
   });
 };

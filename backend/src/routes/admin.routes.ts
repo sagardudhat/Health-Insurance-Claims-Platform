@@ -23,4 +23,8 @@ router.patch('/users/:id/status', adminController.updateUserStatus);
 // Platform-Wide Audit Claims List
 router.get('/claims', adminController.getAllClaims);
 
+// System Configuration
+router.get('/config', adminController.getPolicyConfig);
+router.put('/config', adminController.updatePolicyConfig);
+
 export const adminRoutes = router;

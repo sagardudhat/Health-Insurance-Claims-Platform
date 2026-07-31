@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { adminService } from '../services/admin.service';
-import { catchAsync, buildSuccess } from '../utils';
+import { configService } from '../services/config.service';
+import { catchAsync, buildSuccess, buildError } from '../utils';
 
 export class AdminController {
   getDashboardStats = catchAsync(async (req: Request, res: Response) => {
@@ -59,6 +60,41 @@ export class AdminController {
       searchField: searchField as string,
     });
     res.status(200).json(buildSuccess(claims, 'Platform claims audit list fetched'));
+  });
+
+  getPolicyConfig = catchAsync(async (req: Request, res: Response) => {
+    const year = Number(req.query.year) || new Date().getFullYear();
+    const config = await configService.getConfigForYear(year);
+    res.status(200).json(buildSuccess(config, `Policy config fetched for year ${year}`));
+  });
+
+  updatePolicyConfig = catchAsync(async (req: Request, res: Response) => {
+    const year = Number(req.body.year) || new Date().getFullYear();
+    const annualLimit = Number(req.body.annualLimit);
+    const deductible = Number(req.body.deductible);
+    const coverageRate = Number(req.body.coverageRate);
+    const isActive = Boolean(req.body.isActive ?? true);
+
+    if (isNaN(annualLimit) || annualLimit < 0) {
+      return res.status(400).json(buildError('Annual limit must be a positive number'));
+    }
+    if (isNaN(deductible) || deductible < 0) {
+      return res.status(400).json(buildError('Deductible must be a positive number'));
+    }
+    if (isNaN(coverageRate) || coverageRate < 0 || coverageRate > 1) {
+      return res.status(400).json(buildError('Coverage rate must be between 0 and 1'));
+    }
+    if (deductible > annualLimit) {
+      return res.status(400).json(buildError('Deductible cannot be greater than the annual limit'));
+    }
+
+    const config = await configService.upsertConfig(year, {
+      annualLimit,
+      deductible,
+      coverageRate,
+      isActive,
+    });
+    res.status(200).json(buildSuccess(config, `Policy config updated for year ${year}`));
   });
 }
 

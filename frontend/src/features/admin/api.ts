@@ -13,6 +13,14 @@ export interface AdminDashboardStats {
   statusBreakdownList: Array<{ status: string; count: number }>;
 }
 
+export interface PolicyConfig {
+  year: number;
+  annualLimit: number;
+  deductible: number;
+  coverageRate: number;
+  isActive: boolean;
+}
+
 export const adminApi = {
   getDashboardStats: async (params?: {
     range?: string;
@@ -73,6 +81,24 @@ export const adminApi = {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/admin/claims', {
       params,
     });
+    return response.data.data;
+  },
+
+  getPolicyConfig: async (year?: number): Promise<PolicyConfig> => {
+    const response = await apiClient.get<ApiResponse<PolicyConfig>>('/admin/config', {
+      params: year ? { year } : undefined,
+    });
+    return response.data.data;
+  },
+
+  updatePolicyConfig: async (data: {
+    year: number;
+    annualLimit: number;
+    deductible: number;
+    coverageRate: number;
+    isActive?: boolean;
+  }): Promise<PolicyConfig> => {
+    const response = await apiClient.put<ApiResponse<PolicyConfig>>('/admin/config', data);
     return response.data.data;
   },
 };

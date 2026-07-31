@@ -51,6 +51,7 @@ The platform supports three distinct roles, each with custom dashboards and perm
    - Has a bird's-eye view of all platform statistics (Fraud flags, payout summaries).
    - Can view an uneditable audit trail of all claims.
    - Can manage user accounts.
+   - Can dynamically adjust policy rules (Annual Limit, Deductibles, Coverage Rates) from System Settings.
 
 ---
 
@@ -126,6 +127,13 @@ The application enforces strict data validation using **Zod** on both the fronte
 - **Date of Service**: Cannot be in the future.
 - **Diagnosis Codes**: Must conform to standard ICD-10 formats.
 - **Totals**: `totalClaimed` must be greater than 0.
+
+### 💰 Dynamic Policy Engine
+Claim payouts and patient responsibilities are calculated dynamically based on policy rules stored in MongoDB (`PolicyConfig` collection):
+- **Annual Deductible**: (Default `$500`) Deductible remaining is applied to approved claim items before coverage kicks in.
+- **Coverage Percentage**: (Default `80%`) Insurance covers 80% of eligible expenses after deductible; patient pays 20% coinsurance.
+- **Annual Coverage Limit**: (Default `$10,000`) Maximum insurance payout per policy year.
+- **Admin Configuration**: Admins can adjust these numbers on the fly via the System Settings dashboard.
 
 ---
 

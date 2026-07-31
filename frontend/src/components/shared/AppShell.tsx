@@ -19,6 +19,7 @@ import {
   X,
   LayoutDashboard,
   User as UserIcon,
+  Settings,
 } from 'lucide-react';
 
 interface NavItem {
@@ -78,6 +79,12 @@ const navItems: NavItem[] = [
     label: 'All Claims Audit',
     href: '/admin/claims',
     icon: <ShieldAlert className="w-5 h-5" />,
+    roles: [USER_ROLES.ADMIN],
+  },
+  {
+    label: 'System Settings',
+    href: '/admin/settings',
+    icon: <Settings className="w-5 h-5" />,
     roles: [USER_ROLES.ADMIN],
   },
 ];

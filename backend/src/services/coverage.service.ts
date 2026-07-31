@@ -1,6 +1,7 @@
 import { claimRepository, ClaimRepository } from '../repositories/claim.repository';
 import { IClaimDocument, ILineItem } from '../models/Claim.model';
 import { POLICY_RULES } from '../config/constants';
+import { configService } from './config.service';
 
 export interface CoverageCalculationResult {
   totalClaimed: number;
@@ -36,7 +37,12 @@ export class CoverageService {
     items: ILineItem[],
     deniedItemIds: string[] = [],
     deductibleAlreadyMetThisYear: number = 0,
-    alreadyCoveredThisYearForPolicy: number = 0
+    alreadyCoveredThisYearForPolicy: number = 0,
+    config: { annualLimit: number; deductible: number; coverageRate: number } = {
+      annualLimit: POLICY_RULES.ANNUAL_LIMIT,
+      deductible: POLICY_RULES.DEDUCTIBLE,
+      coverageRate: POLICY_RULES.COVERAGE_RATE,
+    }
   ): CoverageCalculationResult {
     // Standardize items to plain objects with safe numeric values
     const safeDeniedIds = (deniedItemIds || []).map((id) => id.toString());
@@ -67,9 +73,9 @@ export class CoverageService {
 
     const totalClaimed = plainItems.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);
 
-    const ANNUAL_LIMIT = POLICY_RULES.ANNUAL_LIMIT || 10000;
-    const DEDUCTIBLE = POLICY_RULES.DEDUCTIBLE || 500;
-    const RATE = POLICY_RULES.COVERAGE_RATE || 0.8;
+    const ANNUAL_LIMIT = config.annualLimit;
+    const DEDUCTIBLE = config.deductible;
+    const RATE = config.coverageRate;
 
     const safeDeductibleMet = Number(deductibleAlreadyMetThisYear) || 0;
     const safeAlreadyCovered = Number(alreadyCoveredThisYearForPolicy) || 0;
@@ -129,6 +135,9 @@ export class CoverageService {
     // Filter out current claim if it was previously approved
     const pastClaims = priorClaims.filter((c) => c._id.toString() !== claim._id.toString());
 
+    // Fetch config for this year
+    const config = await configService.getConfigForYear(calendarYear);
+
     // Compute deductible already met and annual limit used this calendar year
     let deductibleAlreadyMet = 0;
     let alreadyCovered = 0;
@@ -149,12 +158,22 @@ export class CoverageService {
 
       const priorDeductible = Math.min(
         priorApprovedTotal,
-        POLICY_RULES.DEDUCTIBLE - deductibleAlreadyMet
+        config.deductible - deductibleAlreadyMet
       );
       deductibleAlreadyMet += Math.max(0, priorDeductible);
     }
 
-    return this.calculateCoverage(claim.items, deniedItemIds, deductibleAlreadyMet, alreadyCovered);
+    return this.calculateCoverage(
+      claim.items,
+      deniedItemIds,
+      deductibleAlreadyMet,
+      alreadyCovered,
+      {
+        annualLimit: config.annualLimit,
+        deductible: config.deductible,
+        coverageRate: config.coverageRate,
+      }
+    );
   }
 }
 
