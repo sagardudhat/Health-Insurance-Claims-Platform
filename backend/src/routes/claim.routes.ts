@@ -2,7 +2,9 @@ import { Router } from 'express';
 import { claimController } from '../controllers/claim.controller';
 import { authenticate } from '../middleware/authenticate';
 import { authorize } from '../middleware/authorize';
+import { validate } from '../middleware/validate';
 import { claimDocumentUpload } from '../middleware/upload';
+import { createClaimSchema } from '../validators/claim.validators';
 
 const router = Router();
 

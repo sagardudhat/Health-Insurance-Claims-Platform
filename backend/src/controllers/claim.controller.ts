@@ -36,8 +36,9 @@ export class ClaimController {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const search = req.query.search as string;
+    const searchField = req.query.searchField as string;
 
-    const result = await claimService.getMyClaims(req.user!.id, page, limit, search);
+    const result = await claimService.getMyClaims(req.user!.id, page, limit, search, searchField);
     res.status(200).json(buildSuccess(result, 'Submitted claims fetched'));
   });
 

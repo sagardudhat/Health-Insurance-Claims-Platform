@@ -3,6 +3,7 @@ import { auditLogRepository, AuditLogRepository } from '../repositories/auditLog
 import { coverageService, CoverageService } from './coverage.service';
 import { AppError } from '../errors';
 import { ClaimStatus, UserRole } from '../types';
+import { ALLOWED_SEARCH_FIELDS } from '../validators/claim.validators';
 import fs from 'fs';
 import path from 'path';
 
@@ -26,6 +27,39 @@ export class ClaimService {
     this.claimRepo = claimRepository;
     this.auditRepo = auditLogRepository;
     this.coverageServ = coverageService;
+  }
+
+  /**
+   * SECURITY: Strip server filesystem paths from document objects before
+   * sending to the client. The `path` field contains the absolute path on
+   * the server disk (e.g. /var/app/uploads/claims/doc-123.pdf) — exposing
+   * this leaks the server directory structure to any API consumer.
+   */
+  private sanitizeDocuments(documents: any[]): any[] {
+    return documents.map((doc) => {
+      const { path: _discarded, ...safe } = typeof doc.toObject === 'function' ? doc.toObject() : doc;
+      return safe;
+    });
+  }
+
+  private sanitizeClaimForResponse(claim: any): any {
+    const raw = typeof claim.toObject === 'function' ? claim.toObject() : { ...claim };
+    if (raw.documents) {
+      raw.documents = this.sanitizeDocuments(raw.documents);
+    }
+    return raw;
+  }
+
+  /**
+   * SECURITY: Whitelist searchField values before passing to the repository.
+   * The repository uses this as a field selector for MongoDB queries — passing
+   * an unvalidated string could enumerate internal fields not meant to be searched.
+   */
+  private sanitizeSearchField(searchField?: string): string | undefined {
+    if (!searchField) return undefined;
+    return (ALLOWED_SEARCH_FIELDS as readonly string[]).includes(searchField)
+      ? searchField
+      : 'all';
   }
 
   async createClaim(
@@ -87,16 +121,34 @@ export class ClaimService {
     return this.getClaimById(claim._id.toString(), userId, 'provider');
   }
 
-  async getMyClaims(userId: string, page: number = 1, limit: number = 10, search?: string) {
-    return this.claimRepo.findPaginated({ submittedBy: userId }, page, limit, search);
+  async getMyClaims(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    searchField?: string
+  ) {
+    return this.claimRepo.findPaginated(
+      { submittedBy: userId },
+      page,
+      limit,
+      search,
+      this.sanitizeSearchField(searchField)
+    );
   }
 
-  async getReviewerQueue(page: number = 1, limit: number = 10, search?: string) {
+  async getReviewerQueue(
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    searchField?: string
+  ) {
     return this.claimRepo.findPaginated(
       { status: { $in: ['SUBMITTED', 'UNDER_REVIEW'] } },
       page,
       limit,
-      search
+      search,
+      this.sanitizeSearchField(searchField)
     );
   }
 
@@ -106,6 +158,7 @@ export class ClaimService {
       throw new AppError('Claim not found', 404);
     }
 
+    // SECURITY: Providers can only access their own claims
     if (role === 'provider' && claim.submittedBy._id.toString() !== userId) {
       throw new AppError('Forbidden: You do not have permission to view this claim', 403);
     }
@@ -113,7 +166,7 @@ export class ClaimService {
     const auditTrail = await this.auditRepo.findByClaimId(claimId);
 
     return {
-      claim,
+      claim: this.sanitizeClaimForResponse(claim),
       auditTrail,
     };
   }

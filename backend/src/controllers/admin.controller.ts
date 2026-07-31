@@ -34,8 +34,9 @@ export class AdminController {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const search = req.query.search as string;
+    const searchField = req.query.searchField as string;
 
-    const users = await adminService.getAllUsers(page, limit, search);
+    const users = await adminService.getAllUsers(page, limit, search, searchField);
     res.status(200).json(buildSuccess(users, 'All platform users fetched'));
   });
 
@@ -47,7 +48,7 @@ export class AdminController {
   });
 
   getAllClaims = catchAsync(async (req: Request, res: Response) => {
-    const { status, procedureCode, flaggedOnly, page, limit, search } = req.query;
+    const { status, procedureCode, flaggedOnly, page, limit, search, searchField } = req.query;
     const claims = await adminService.getAllClaims({
       status: status as string,
       procedureCode: procedureCode as string,
@@ -55,6 +56,7 @@ export class AdminController {
       page: Number(page) || 1,
       limit: Number(limit) || 10,
       search: search as string,
+      searchField: searchField as string,
     });
     res.status(200).json(buildSuccess(claims, 'Platform claims audit list fetched'));
   });

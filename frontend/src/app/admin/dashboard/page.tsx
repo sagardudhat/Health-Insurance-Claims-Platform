@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs">
           <div className="flex items-center justify-between text-[var(--text-muted)]">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Submitted</span>

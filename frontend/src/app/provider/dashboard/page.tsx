@@ -1,215 +1,198 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useMyClaims } from '@/features/claims/hooks';
+import { useAuthStore } from '@/features/auth/store';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/skeleton';
-import { PlusCircle, FileText, Calendar, ArrowRight, Search, User } from 'lucide-react';
+import { 
+  PlusCircle, 
+  FileText, 
+  CheckCircle2, 
+  Clock, 
+  DollarSign, 
+  ArrowRight,
+  ShieldCheck,
+  Activity
+} from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ProviderDashboardPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  const pageParam = Number(searchParams.get('page')) || 1;
-  const limitParam = Number(searchParams.get('limit')) || 10;
-  const searchParam = searchParams.get('search') || '';
-
-  const [searchInput, setSearchInput] = useState(searchParam);
-
-  // Keep search input in sync if URL changes
-  useEffect(() => {
-    setSearchInput(searchParam);
-  }, [searchParam]);
-
-  const { data: responseData, isLoading, isError } = useMyClaims({
-    page: pageParam,
-    limit: limitParam,
-    search: searchParam,
-  });
+  const { user } = useAuthStore();
+  const { data: responseData, isLoading } = useMyClaims({ page: 1, limit: 5 });
 
   const claims = responseData?.data || [];
-  const pagination = responseData?.pagination;
+  const totalCount = responseData?.pagination?.total || claims.length;
 
-  const updateQueryParams = (newParams: Record<string, string | number | undefined>) => {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
-
-    Object.entries(newParams).forEach(([key, val]) => {
-      if (val === undefined || val === '' || val === null) {
-        current.delete(key);
-      } else {
-        current.set(key, String(val));
-      }
-    });
-
-    const query = current.toString();
-    router.push(`${pathname}${query ? `?${query}` : ''}`);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateQueryParams({ search: searchInput.trim(), page: 1 });
-  };
+  const approvedCount = claims.filter((c) => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED').length;
+  const pendingCount = claims.filter((c) => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW').length;
+  const totalApprovedPayout = claims
+    .filter((c) => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED')
+    .reduce((sum, c) => sum + (c.approvedAmount || 0), 0);
 
   return (
-    <div className="h-full flex flex-col min-h-0 space-y-4 overflow-hidden">
-      {/* Header Banner */}
-      <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs">
+    <div className="h-full overflow-y-auto pr-1 space-y-6">
+      {/* Provider Welcome Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[var(--border)] shadow-xs">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Provider Claims Dashboard</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+              Welcome back, {user?.name || 'Healthcare Provider'}!
+            </h1>
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-[var(--brand-700)] px-2 py-0.5 rounded border border-blue-100">
+              Provider Portal
+            </span>
+          </div>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Manage your submitted health insurance claims, track approval statuses, and review decisions.
+            Track claims status, review insurance reimbursement payouts, and submit new patient billing claims.
           </p>
         </div>
+
         <Link href="/provider/claims/new">
-          <Button className="flex items-center gap-2">
-            <PlusCircle className="w-4 h-4" />
+          <Button size="lg" className="flex items-center gap-2 font-semibold shadow-sm">
+            <PlusCircle className="w-5 h-5" />
             <span>Submit New Claim</span>
           </Button>
         </Link>
       </div>
 
-      {/* Claims Table Section */}
-      <div className="bg-white rounded-xl border border-[var(--border)] shadow-xs flex-1 flex flex-col min-h-0 overflow-hidden">
-        {/* Search & Filter Bar */}
-        <div className="p-4 border-b border-[var(--border)] shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-base font-semibold text-[var(--text-primary)]">Submitted Claims History</h2>
+      {/* Provider Overview Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs">
+          <div className="flex items-center justify-between text-[var(--text-muted)]">
+            <span className="text-xs font-semibold uppercase tracking-wider">Total Claims</span>
+            <FileText className="w-5 h-5 text-[var(--brand-500)]" />
+          </div>
+          <div className="mt-2 flex items-baseline justify-between">
+            <span className="text-3xl font-bold text-[var(--text-primary)] tabular-nums">{totalCount}</span>
+            <span className="text-xs text-[var(--text-secondary)] font-medium">Submitted</span>
+          </div>
+        </div>
 
-          {/* Search Form */}
-          <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-            <div className="relative min-w-[240px]">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search patient, policy, procedure..."
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
-              />
-            </div>
-            <Button type="submit" size="sm" variant="outline" className="text-xs">
-              Search
-            </Button>
-            {searchParam && (
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setSearchInput('');
-                  updateQueryParams({ search: undefined, page: 1 });
-                }}
-                className="text-xs text-gray-500"
-              >
-                Clear
-              </Button>
-            )}
-          </form>
+        <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs">
+          <div className="flex items-center justify-between text-[var(--text-muted)]">
+            <span className="text-xs font-semibold uppercase tracking-wider">Pending Review</span>
+            <Clock className="w-5 h-5 text-amber-500" />
+          </div>
+          <div className="mt-2 flex items-baseline justify-between">
+            <span className="text-3xl font-bold text-[var(--text-primary)] tabular-nums">{pendingCount}</span>
+            <span className="text-xs text-amber-600 font-medium">In Queue</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs">
+          <div className="flex items-center justify-between text-[var(--text-muted)]">
+            <span className="text-xs font-semibold uppercase tracking-wider">Approved</span>
+            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+          </div>
+          <div className="mt-2 flex items-baseline justify-between">
+            <span className="text-3xl font-bold text-[var(--text-primary)] tabular-nums">{approvedCount}</span>
+            <span className="text-xs text-emerald-600 font-medium">Resolved</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs">
+          <div className="flex items-center justify-between text-[var(--text-muted)]">
+            <span className="text-xs font-semibold uppercase tracking-wider">Reimbursement</span>
+            <DollarSign className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div className="mt-2 flex items-baseline justify-between">
+            <span className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
+              ${totalApprovedPayout.toFixed(2)}
+            </span>
+            <span className="text-xs text-emerald-600 font-medium">Payouts</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Banner */}
+      <div className="bg-gradient-to-r from-[var(--brand-700)] to-[var(--brand-500)] text-white p-6 rounded-xl shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-blue-200" />
+            <h3 className="text-lg font-bold">Fast & Secure Claims Submission</h3>
+          </div>
+          <p className="text-xs text-blue-100 max-w-xl">
+            Submit itemized patient bills with attached medical PDFs/images. Automated coverage calculation runs instantly upon reviewer assessment.
+          </p>
+        </div>
+        <Link href="/provider/claims/new">
+          <Button variant="secondary" className="bg-white text-[var(--brand-700)] hover:bg-blue-50 font-bold text-xs shrink-0">
+            Create Claim Form
+          </Button>
+        </Link>
+      </div>
+
+      {/* Recent Claims Preview */}
+      <div className="bg-white rounded-xl border border-[var(--border)] shadow-xs space-y-4 p-5">
+        <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-[var(--brand-500)]" />
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">Recent Submitted Claims</h2>
+          </div>
+          <Link
+            href="/provider/claims"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-500)] hover:underline"
+          >
+            <span>View All Claims</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         {isLoading ? (
-          <TableSkeleton rows={5} columns={8} />
-        ) : isError ? (
-          <div className="p-8 text-center text-red-600 text-sm font-medium flex-1 flex items-center justify-center">
-            Failed to load submitted claims. Please try logging in again.
-          </div>
+          <TableSkeleton rows={4} columns={6} />
         ) : claims.length === 0 ? (
-          <div className="p-12 text-center space-y-3 flex-1 flex flex-col items-center justify-center">
-            <FileText className="w-10 h-10 text-gray-300 mx-auto" />
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">No matching claims found</h3>
-            <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
-              {searchParam
-                ? `No claims matched your search query "${searchParam}".`
-                : "You haven't submitted any insurance claims yet."}
-            </p>
-            {searchParam ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearchInput('');
-                  updateQueryParams({ search: undefined, page: 1 });
-                }}
-              >
-                Reset Search
-              </Button>
-            ) : (
-              <Link href="/provider/claims/new" className="inline-block">
-                <Button variant="outline" size="sm">
-                  Submit First Claim
-                </Button>
-              </Link>
-            )}
+          <div className="p-8 text-center text-xs text-[var(--text-muted)]">
+            No claims submitted yet.{' '}
+            <Link href="/provider/claims/new" className="text-[var(--brand-500)] underline font-semibold">
+              Submit your first claim now
+            </Link>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="overflow-x-auto overflow-y-auto flex-1 min-h-0">
-              <table className="w-full text-left text-sm border-collapse">
-                <thead className="sticky top-0 z-10 bg-gray-50 text-[var(--text-secondary)] text-xs uppercase font-semibold border-b border-[var(--border)] shadow-xs">
-                  <tr>
-                    <th className="py-3.5 px-4">Claim ID</th>
-                    <th className="py-3.5 px-4">Patient</th>
-                    <th className="py-3.5 px-4">Policy No.</th>
-                    <th className="py-3.5 px-4">Procedure</th>
-                    <th className="py-3.5 px-4">Date of Service</th>
-                    <th className="py-3.5 px-4 text-right">Total Claimed</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    <th className="py-3.5 px-4 text-center">Action</th>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse min-w-[600px]">
+              <thead className="bg-gray-50 text-[var(--text-secondary)] uppercase font-semibold border-b border-[var(--border)]">
+                <tr>
+                  <th className="py-2.5 px-3">Claim ID</th>
+                  <th className="py-2.5 px-3">Patient</th>
+                  <th className="py-2.5 px-3">Procedure</th>
+                  <th className="py-2.5 px-3">Date</th>
+                  <th className="py-2.5 px-3">Claimed Amount</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {claims.slice(0, 5).map((claim) => (
+                  <tr key={claim._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-3 font-mono font-semibold text-[var(--brand-700)]">
+                      #{claim._id.slice(-6).toUpperCase()}
+                    </td>
+                    <td className="py-3 px-3 font-semibold text-[var(--text-primary)]">{claim.patient.name}</td>
+                    <td className="py-3 px-3 text-[var(--text-secondary)]">{claim.procedure.name}</td>
+                    <td className="py-3 px-3 text-[var(--text-secondary)] whitespace-nowrap">
+                      {format(new Date(claim.procedure.dateOfService), 'MMM dd, yyyy')}
+                    </td>
+                    <td className="py-3 px-3 font-bold text-[var(--text-primary)] tabular-nums">
+                      ${claim.totalClaimed.toFixed(2)}
+                    </td>
+                    <td className="py-3 px-3">
+                      <StatusBadge status={claim.status} isFlagged={claim.flagged} />
+                    </td>
+                    <td className="py-3 px-3">
+                      <Link
+                        href={`/provider/claims/${claim._id}`}
+                        className="text-[var(--brand-500)] hover:underline font-semibold"
+                      >
+                        Details
+                      </Link>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  {claims.map((claim) => (
-                    <tr key={claim._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="py-3.5 px-4 font-mono text-xs font-semibold text-[var(--brand-700)]">
-                        #{claim._id.slice(-6).toUpperCase()}
-                      </td>
-                      <td className="py-3.5 px-4 font-semibold text-[var(--text-primary)]">
-                        {claim.patient.name}
-                      </td>
-                      <td className="py-3.5 px-4 text-xs font-medium text-[var(--text-secondary)]">
-                        {claim.patient.policyNumber}
-                      </td>
-                      <td className="py-3.5 px-4 text-xs">
-                        <div className="font-medium text-[var(--text-primary)]">{claim.procedure.name}</div>
-                        <div className="text-[10px] text-[var(--text-muted)]">{claim.procedure.code}</div>
-                      </td>
-                      <td className="py-3.5 px-4 text-xs text-[var(--text-secondary)] whitespace-nowrap">
-                        {format(new Date(claim.procedure.dateOfService), 'MMM dd, yyyy')}
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-bold text-[var(--text-primary)] tabular-nums">
-                        ${claim.totalClaimed.toFixed(2)}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <StatusBadge status={claim.status} isFlagged={claim.flagged} />
-                      </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <Link
-                          href={`/provider/claims/${claim._id}`}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-500)] hover:underline"
-                        >
-                          <span>View</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Server-side Pagination Bar */}
-            {pagination && (
-              <Pagination
-                pagination={pagination}
-                onPageChange={(page) => updateQueryParams({ page })}
-                onLimitChange={(limit) => updateQueryParams({ limit, page: 1 })}
-              />
-            )}
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

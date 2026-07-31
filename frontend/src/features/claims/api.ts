@@ -12,7 +12,7 @@ export const claimsApi = {
     return response.data.data;
   },
 
-  getMyClaims: async (params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<Claim>> => {
+  getMyClaims: async (params?: { page?: number; limit?: number; search?: string; searchField?: string }): Promise<PaginatedResponse<Claim>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/claims/mine', { params });
     return response.data.data;
   },

@@ -8,7 +8,7 @@ export const useAdminDashboardStats = (params?: { range?: string; from?: string;
   });
 };
 
-export const useAdminUsers = (params?: { page?: number; limit?: number; search?: string }) => {
+export const useAdminUsers = (params?: { page?: number; limit?: number; search?: string; searchField?: string }) => {
   return useQuery({
     queryKey: ['adminUsers', params],
     queryFn: () => adminApi.getAllUsers(params),

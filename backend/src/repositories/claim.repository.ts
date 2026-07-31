@@ -31,13 +31,14 @@ export class ClaimRepository {
   }
 
   /**
-   * MongoDB Server-Side Paginated & Search Query Execution
+   * MongoDB Server-Side Paginated & Field-Specific Search Query Execution
    */
   async findPaginated(
     filter: Record<string, any> = {},
     page: number = 1,
     limit: number = 10,
-    search?: string
+    search?: string,
+    searchField: string = 'all'
   ): Promise<PaginatedResult<IClaimDocument>> {
     const pageNum = Math.max(1, page);
     const limitNum = Math.max(1, limit);
@@ -47,12 +48,24 @@ export class ClaimRepository {
 
     if (search && search.trim().length > 0) {
       const regex = new RegExp(search.trim(), 'i');
-      query.$or = [
-        { 'patient.name': regex },
-        { 'patient.policyNumber': regex },
-        { 'procedure.name': regex },
-        { 'procedure.code': regex },
-      ];
+
+      if (searchField === 'patientName') {
+        query['patient.name'] = regex;
+      } else if (searchField === 'policyNumber') {
+        query['patient.policyNumber'] = regex;
+      } else if (searchField === 'procedureName') {
+        query['procedure.name'] = regex;
+      } else if (searchField === 'procedureCode') {
+        query['procedure.code'] = regex;
+      } else {
+        // 'all' field search
+        query.$or = [
+          { 'patient.name': regex },
+          { 'patient.policyNumber': regex },
+          { 'procedure.name': regex },
+          { 'procedure.code': regex },
+        ];
+      }
     }
 
     const totalItems = await Claim.countDocuments(query);

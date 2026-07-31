@@ -5,6 +5,7 @@ import { Claim } from '../models/Claim.model';
 import { AuditLog } from '../models/AuditLog.model';
 import { AppError } from '../errors';
 import { UserStatus } from '../types';
+import { ALLOWED_SEARCH_FIELDS } from '../validators/claim.validators';
 import mongoose from 'mongoose';
 
 export class AdminService {
@@ -185,8 +186,8 @@ export class AdminService {
       .sort({ createdAt: -1 });
   }
 
-  async getAllUsers(page: number = 1, limit: number = 10, search?: string) {
-    return this.userRepo.findPaginated(page, limit, search);
+  async getAllUsers(page: number = 1, limit: number = 10, search?: string, searchField?: string) {
+    return this.userRepo.findPaginated(page, limit, search, searchField);
   }
 
   async updateUserStatus(userId: string, status: UserStatus, currentAdminId?: string) {
@@ -207,10 +208,13 @@ export class AdminService {
     page?: number;
     limit?: number;
     search?: string;
+    searchField?: string;
   }) {
     const query: Record<string, any> = {};
 
-    if (filters.status && filters.status !== 'ALL') {
+    // SECURITY: Validate status against known enum — prevents arbitrary string injection
+    const VALID_STATUSES = ['SUBMITTED','UNDER_REVIEW','APPROVED','PARTIALLY_APPROVED','REJECTED','NEEDS_REVISION','PAID'];
+    if (filters.status && filters.status !== 'ALL' && VALID_STATUSES.includes(filters.status)) {
       query.status = filters.status;
     }
 
@@ -225,7 +229,12 @@ export class AdminService {
     const page = Number(filters.page) || 1;
     const limit = Number(filters.limit) || 10;
 
-    return this.claimRepo.findPaginated(query, page, limit, filters.search);
+    // SECURITY: Whitelist searchField before passing to repository
+    const safeSearchField = filters.searchField && (ALLOWED_SEARCH_FIELDS as readonly string[]).includes(filters.searchField)
+      ? filters.searchField
+      : 'all';
+
+    return this.claimRepo.findPaginated(query, page, limit, filters.search, safeSearchField);
   }
 }
 

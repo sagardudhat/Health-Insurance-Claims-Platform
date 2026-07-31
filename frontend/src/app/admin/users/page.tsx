@@ -20,17 +20,21 @@ export default function UserManagementPage() {
   const pageParam = Number(searchParams.get('page')) || 1;
   const limitParam = Number(searchParams.get('limit')) || 10;
   const searchParam = searchParams.get('search') || '';
+  const searchFieldParam = searchParams.get('searchField') || 'all';
 
   const [searchInput, setSearchInput] = useState(searchParam);
+  const [selectedSearchField, setSelectedSearchField] = useState(searchFieldParam);
 
   useEffect(() => {
     setSearchInput(searchParam);
-  }, [searchParam]);
+    setSelectedSearchField(searchFieldParam);
+  }, [searchParam, searchFieldParam]);
 
   const { data: responseData, isLoading } = useAdminUsers({
     page: pageParam,
     limit: limitParam,
     search: searchParam,
+    searchField: searchFieldParam,
   });
 
   const { mutate: updateUserStatus, isPending } = useUpdateUserStatus();
@@ -62,7 +66,7 @@ export default function UserManagementPage() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateQueryParams({ search: searchInput.trim(), page: 1 });
+    updateQueryParams({ search: searchInput.trim(), searchField: selectedSearchField, page: 1 });
   };
 
   const handleToggleStatus = (user: User) => {
@@ -112,13 +116,24 @@ export default function UserManagementPage() {
 
           {/* Search Form */}
           <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-            <div className="relative min-w-[240px]">
+            <select
+              value={selectedSearchField}
+              onChange={(e) => setSelectedSearchField(e.target.value)}
+              className="py-1.5 px-3 text-xs rounded-lg border border-[var(--border)] bg-white font-medium text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--brand-500)]"
+            >
+              <option value="all">All Fields</option>
+              <option value="name">User Name</option>
+              <option value="email">Email Address</option>
+              <option value="role">Role</option>
+            </select>
+
+            <div className="relative min-w-[200px]">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search user name or email..."
+                placeholder="Search..."
                 className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
               />
             </div>
@@ -132,7 +147,8 @@ export default function UserManagementPage() {
                 variant="ghost"
                 onClick={() => {
                   setSearchInput('');
-                  updateQueryParams({ search: undefined, page: 1 });
+                  setSelectedSearchField('all');
+                  updateQueryParams({ search: undefined, searchField: undefined, page: 1 });
                 }}
                 className="text-xs text-gray-500"
               >
@@ -151,36 +167,36 @@ export default function UserManagementPage() {
         ) : (
           <div className="flex-1 flex flex-col min-h-0">
             <div className="overflow-x-auto overflow-y-auto flex-1 min-h-0">
-              <table className="w-full text-left text-sm border-collapse">
+              <table className="w-full text-left text-sm border-collapse min-w-[650px]">
                 <thead className="sticky top-0 z-10 bg-gray-50 text-[var(--text-secondary)] text-xs uppercase font-semibold border-b border-[var(--border)] shadow-xs">
                   <tr>
-                    <th className="py-3.5 px-4">User Name</th>
-                    <th className="py-3.5 px-4">Email Address</th>
-                    <th className="py-3.5 px-4">Role</th>
-                    <th className="py-3.5 px-4">Registered Date</th>
-                    <th className="py-3.5 px-4">Account Status</th>
-                    <th className="py-3.5 px-4 text-center">Action</th>
+                    <th className="py-3.5 px-4 text-left">User Name</th>
+                    <th className="py-3.5 px-4 text-left">Email Address</th>
+                    <th className="py-3.5 px-4 text-left">Role</th>
+                    <th className="py-3.5 px-4 text-left">Registered Date</th>
+                    <th className="py-3.5 px-4 text-left">Account Status</th>
+                    <th className="py-3.5 px-4 text-left">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">
                   {displayUsers.map((user) => (
                     <tr key={user._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="py-3.5 px-4 font-semibold text-[var(--text-primary)]">
+                      <td className="py-3.5 px-4 font-semibold text-[var(--text-primary)] text-left">
                         {user.name}
                       </td>
-                      <td className="py-3.5 px-4 text-xs font-mono text-[var(--text-secondary)]">
+                      <td className="py-3.5 px-4 text-xs font-mono text-[var(--text-secondary)] text-left">
                         {user.email}
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 text-left">
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium capitalize bg-blue-50 text-blue-700 border border-blue-200">
                           <Shield className="w-3 h-3" />
                           <span>{user.role}</span>
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-xs text-[var(--text-secondary)] whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-xs text-[var(--text-secondary)] whitespace-nowrap text-left">
                         {user.createdAt ? format(new Date(user.createdAt), 'MMM dd, yyyy') : 'N/A'}
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 text-left">
                         {user.status === 'active' ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
@@ -193,7 +209,7 @@ export default function UserManagementPage() {
                           </span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-4 text-left">
                         <Button
                           size="sm"
                           variant={user.status === 'active' ? 'destructive' : 'outline'}

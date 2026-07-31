@@ -36,7 +36,8 @@ export class UserRepository {
   async findPaginated(
     page: number = 1,
     limit: number = 10,
-    search?: string
+    search?: string,
+    searchField: string = 'all'
   ): Promise<PaginatedResult<IUserDocument>> {
     const pageNum = Math.max(1, page);
     const limitNum = Math.max(1, limit);
@@ -46,7 +47,16 @@ export class UserRepository {
 
     if (search && search.trim().length > 0) {
       const regex = new RegExp(search.trim(), 'i');
-      query.$or = [{ name: regex }, { email: regex }, { role: regex }];
+
+      if (searchField === 'name') {
+        query.name = regex;
+      } else if (searchField === 'email') {
+        query.email = regex;
+      } else if (searchField === 'role') {
+        query.role = regex;
+      } else {
+        query.$or = [{ name: regex }, { email: regex }, { role: regex }];
+      }
     }
 
     const totalItems = await User.countDocuments(query);

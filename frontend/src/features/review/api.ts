@@ -9,13 +9,25 @@ export interface ReviewerStats {
 }
 
 export const reviewApi = {
-  getQueue: async (params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<Claim>> => {
+  getQueue: async (params?: { page?: number; limit?: number; search?: string; searchField?: string }): Promise<PaginatedResponse<Claim>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/reviewer/queue', { params });
     return response.data.data;
   },
 
   getStats: async (): Promise<ReviewerStats> => {
     const response = await apiClient.get<ApiResponse<ReviewerStats>>('/reviewer/stats');
+    return response.data.data;
+  },
+
+  getAllClaims: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    searchField?: string;
+    status?: string;
+    flaggedOnly?: string;
+  }): Promise<PaginatedResponse<Claim>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/reviewer/claims', { params });
     return response.data.data;
   },
 

@@ -34,7 +34,7 @@ export const adminApi = {
     return response.data.data;
   },
 
-  getAllUsers: async (params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<User>> => {
+  getAllUsers: async (params?: { page?: number; limit?: number; search?: string; searchField?: string }): Promise<PaginatedResponse<User>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<User>>>('/admin/users', { params });
     return response.data.data;
   },
@@ -48,6 +48,7 @@ export const adminApi = {
     page?: number;
     limit?: number;
     search?: string;
+    searchField?: string;
     status?: string;
     procedureCode?: string;
     flaggedOnly?: string;
