@@ -109,6 +109,12 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   const isAuthPage = pathname === '/login' || pathname === '/register';
 
+  useEffect(() => {
+    if (mounted && !isAuthPage && (!token || !user)) {
+      router.replace('/login');
+    }
+  }, [mounted, isAuthPage, token, user, router]);
+
   const currentRole = mounted ? (user?.role as UserRole) : undefined;
   const filteredNav = navItems.filter((item) => currentRole && item.roles.includes(currentRole));
 
@@ -119,6 +125,17 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   if (isAuthPage) {
     return <div className="min-h-screen bg-[var(--bg)]">{children}</div>;
+  }
+
+  if (mounted && (!token || !user)) {
+    return (
+      <div className="min-h-screen w-screen bg-gray-50 flex flex-col items-center justify-center space-y-3">
+        <div className="w-8 h-8 border-3 border-[var(--brand-500)] border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs text-[var(--text-muted)] font-medium">
+          Session expired. Redirecting to login...
+        </p>
+      </div>
+    );
   }
 
   return (
