@@ -17,6 +17,12 @@ export class AuthController {
     const user = await authService.getMe(req.user!.id);
     res.status(200).json(buildSuccess(user, 'User profile fetched'));
   });
+
+  refreshToken = catchAsync(async (req: Request, res: Response) => {
+    const { refreshToken } = req.body;
+    const result = await authService.refreshAuthToken(refreshToken);
+    res.status(200).json(buildSuccess(result, 'Token refreshed successfully'));
+  });
 }
 
 export const authController = new AuthController();

@@ -11,6 +11,7 @@ const router = Router();
 // Public auth routes
 router.post('/register', validate(registerSchema), authController.register);
 router.post('/login', validate(loginSchema), authController.login);
+router.post('/refresh-token', authController.refreshToken);
 
 // Protected profile route
 router.get('/me', authenticate, authController.getMe);
