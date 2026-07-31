@@ -1,5 +1,5 @@
 // Express Application Assembly: Middleware registration, route mounting, health check, and error handlers.
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
@@ -49,9 +49,16 @@ app.use((req: Request, res: Response) => {
 });
 
 // Global Error Handling Middleware
-app.use((err: any, req: Request, res: Response, next: any) => {
-  const statusCode = err.statusCode || err.status || 500;
-  const message = err.message || 'Internal Server Error';
-  console.error(`[Error] ${statusCode} - ${message}`);
-  res.status(statusCode).json(buildError(message, err.errors));
-});
+app.use(
+  (
+    err: Error & { statusCode?: number; status?: number; errors?: unknown },
+    req: Request,
+    res: Response,
+    _next: NextFunction
+  ) => {
+    const statusCode = err.statusCode || err.status || 500;
+    const message = err.message || 'Internal Server Error';
+    console.error(`[Error] ${statusCode} - ${message}`);
+    res.status(statusCode).json(buildError(message, err.errors));
+  }
+);

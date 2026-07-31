@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'path';
+import { Request } from 'express';
 import fs from 'fs';
 import { AppError } from '../errors';
 
@@ -19,7 +20,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
   if (allowedMimeTypes.includes(file.mimetype)) {
@@ -29,8 +30,7 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCa
       new AppError(
         `Invalid file type '${file.mimetype}'. Only PDF, JPEG, and PNG files are allowed.`,
         400
-      ) as any,
-      false
+      )
     );
   }
 };

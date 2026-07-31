@@ -2,27 +2,27 @@
 
 import React, { useState } from 'react';
 import { useAdminDashboardStats } from '@/features/admin/hooks';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  ResponsiveContainer, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  Legend 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
 } from 'recharts';
-import { 
-  BarChart3, 
-  DollarSign, 
-  Clock, 
-  ShieldAlert, 
-  Calendar, 
-  Loader2, 
-  CheckCircle2, 
-  Activity 
+import {
+  BarChart3,
+  DollarSign,
+  Clock,
+  ShieldAlert,
+  Calendar,
+  Loader2,
+  CheckCircle2,
+  Activity,
 } from 'lucide-react';
 
 const STATUS_COLOR_MAP: Record<string, string> = {
@@ -39,21 +39,25 @@ export default function AdminDashboardPage() {
   const [range, setRange] = useState<string>('month');
   const { data: stats, isLoading } = useAdminDashboardStats({ range });
 
-  const chartData = stats?.statusBreakdownList.map((item) => ({
-    name: item.status.replace('_', ' '),
-    status: item.status,
-    Claims: item.count,
-    color: STATUS_COLOR_MAP[item.status] || '#667085',
-  })) || [];
+  const chartData =
+    stats?.statusBreakdownList.map((item) => ({
+      name: item.status.replace('_', ' '),
+      status: item.status,
+      Claims: item.count,
+      color: STATUS_COLOR_MAP[item.status] || '#667085',
+    })) || [];
 
   return (
     <div className="h-full overflow-y-auto pr-1 space-y-6">
       {/* Header Banner & Date Filter */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[var(--border)] shadow-xs">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Platform Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+            Platform Admin Dashboard
+          </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Platform-wide claims statistics, financial payout summaries, turnaround times, and fraud detection metrics.
+            Platform-wide claims statistics, financial payout summaries, turnaround times, and fraud
+            detection metrics.
           </p>
         </div>
 
@@ -128,7 +132,9 @@ export default function AdminDashboardPage() {
 
         <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs">
           <div className="flex items-center justify-between text-[var(--text-muted)]">
-            <span className="text-xs font-semibold uppercase tracking-wider">Flagged Suspicious</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              Flagged Suspicious
+            </span>
             <ShieldAlert className="w-5 h-5 text-red-600" />
           </div>
           <div className="mt-2 flex items-baseline justify-between">
@@ -164,7 +170,13 @@ export default function AdminDashboardPage() {
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-15} textAnchor="end" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10 }}
+                    interval={0}
+                    angle={-15}
+                    textAnchor="end"
+                  />
                   <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                   <Tooltip
                     contentStyle={{

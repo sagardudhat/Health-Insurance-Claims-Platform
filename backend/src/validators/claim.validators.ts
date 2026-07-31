@@ -55,10 +55,7 @@ export const createClaimSchema = z.object({
   patientDob: z
     .string()
     .refine((val) => !isNaN(Date.parse(val)), 'Valid DOB is required')
-    .refine(
-      (val) => new Date(val) <= new Date(),
-      'Patient Date of Birth cannot be in the future'
-    ),
+    .refine((val) => new Date(val) <= new Date(), 'Patient Date of Birth cannot be in the future'),
   procedureName: z
     .string()
     .min(2, 'Procedure name is required')
@@ -72,10 +69,7 @@ export const createClaimSchema = z.object({
   dateOfService: z
     .string()
     .refine((val) => !isNaN(Date.parse(val)), 'Valid date of service is required')
-    .refine(
-      (val) => new Date(val) <= new Date(),
-      'Date of Service cannot be in the future'
-    ),
+    .refine((val) => new Date(val) <= new Date(), 'Date of Service cannot be in the future'),
   items: z
     .array(lineItemSchema)
     .min(1, 'At least one line item is required')
@@ -86,12 +80,11 @@ export const createClaimSchema = z.object({
 // The server enforces the actual state machine — this catches obviously bad input first.
 export const statusTransitionSchema = z.object({
   toStatus: z.enum(VALID_STATUSES, {
-    errorMap: () => ({ message: `Invalid target status. Must be one of: ${VALID_STATUSES.join(', ')}` }),
+    errorMap: () => ({
+      message: `Invalid target status. Must be one of: ${VALID_STATUSES.join(', ')}`,
+    }),
   }),
-  note: z
-    .string()
-    .max(2000, 'Reviewer note cannot exceed 2000 characters')
-    .optional(),
+  note: z.string().max(2000, 'Reviewer note cannot exceed 2000 characters').optional(),
   deniedItemIds: z
     .array(z.string().min(1))
     .max(50, 'Cannot deny more than 50 items')

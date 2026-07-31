@@ -39,7 +39,14 @@ export class ClaimController {
     const searchField = req.query.searchField as string;
     const status = req.query.status as string;
 
-    const result = await claimService.getMyClaims(req.user!.id, page, limit, search, searchField, status);
+    const result = await claimService.getMyClaims(
+      req.user!.id,
+      page,
+      limit,
+      search,
+      searchField,
+      status
+    );
     res.status(200).json(buildSuccess(result, 'Submitted claims fetched'));
   });
 
@@ -55,7 +62,12 @@ export class ClaimController {
 
   downloadDocument = catchAsync(async (req: Request, res: Response) => {
     const { claimId, filename } = req.params;
-    const file = await claimService.getDocumentFile(claimId, filename, req.user!.id, req.user!.role);
+    const file = await claimService.getDocumentFile(
+      claimId,
+      filename,
+      req.user!.id,
+      req.user!.role
+    );
 
     res.setHeader('Content-Type', file.mimetype);
     res.setHeader('Content-Disposition', `inline; filename="${file.originalName}"`);

@@ -12,7 +12,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'ClaimCare | Health Insurance Claims Processing Platform',
-  description: 'Enterprise healthcare claims management, automated coverage engine, and audit compliance platform.',
+  description:
+    'Enterprise healthcare claims management, automated coverage engine, and audit compliance platform.',
 };
 
 export default function RootLayout({

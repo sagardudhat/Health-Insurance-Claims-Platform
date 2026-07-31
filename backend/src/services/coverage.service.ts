@@ -41,8 +41,11 @@ export class CoverageService {
     // Standardize items to plain objects with safe numeric values
     const safeDeniedIds = (deniedItemIds || []).map((id) => id.toString());
 
-    const plainItems = (items || []).map((item: any) => {
-      const raw = typeof item.toObject === 'function' ? item.toObject() : item;
+    const plainItems = (items || []).map((item: unknown) => {
+      const raw =
+        typeof (item as Record<string, any>).toObject === 'function'
+          ? (item as Record<string, any>).toObject()
+          : (item as Record<string, any>);
       const itemId = raw._id ? raw._id.toString() : '';
       const isDenied = raw.isDenied || safeDeniedIds.includes(itemId);
       const quantity = Number(raw.quantity) || 0;
@@ -88,8 +91,12 @@ export class CoverageService {
     // 5. Patient responsibility = total claimed - coveredAmount
     const patientResponsibility = Math.max(0, totalClaimed - coveredAmount);
 
-    const finalCoveredAmount = isNaN(coveredAmount) || coveredAmount < 0 ? 0 : Number(coveredAmount.toFixed(2));
-    const finalPatientResp = isNaN(patientResponsibility) || patientResponsibility < 0 ? 0 : Number(patientResponsibility.toFixed(2));
+    const finalCoveredAmount =
+      isNaN(coveredAmount) || coveredAmount < 0 ? 0 : Number(coveredAmount.toFixed(2));
+    const finalPatientResp =
+      isNaN(patientResponsibility) || patientResponsibility < 0
+        ? 0
+        : Number(patientResponsibility.toFixed(2));
 
     return {
       totalClaimed: Number(totalClaimed.toFixed(2)),
@@ -129,8 +136,11 @@ export class CoverageService {
     for (const prior of pastClaims) {
       alreadyCovered += Number(prior.coveredAmount) || 0;
 
-      const priorApprovedTotal = (prior.items || []).reduce((sum, item: any) => {
-        const raw = typeof item.toObject === 'function' ? item.toObject() : item;
+      const priorApprovedTotal = (prior.items || []).reduce((sum, item: unknown) => {
+        const raw =
+          typeof (item as Record<string, any>).toObject === 'function'
+            ? (item as Record<string, any>).toObject()
+            : (item as Record<string, any>);
         if (raw.isDenied) return sum;
         const qty = Number(raw.quantity) || 0;
         const cost = Number(raw.unitCost) || 0;
@@ -144,12 +154,7 @@ export class CoverageService {
       deductibleAlreadyMet += Math.max(0, priorDeductible);
     }
 
-    return this.calculateCoverage(
-      claim.items,
-      deniedItemIds,
-      deductibleAlreadyMet,
-      alreadyCovered
-    );
+    return this.calculateCoverage(claim.items, deniedItemIds, deductibleAlreadyMet, alreadyCovered);
   }
 }
 

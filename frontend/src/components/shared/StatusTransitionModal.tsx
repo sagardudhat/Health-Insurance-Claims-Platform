@@ -7,7 +7,15 @@ import { getLegalNextStatuses } from '@/features/review/transitionMap';
 import { useUpdateClaimStatus } from '@/features/review/hooks';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { X, CheckCircle2, AlertTriangle, ShieldCheck, FileCheck, FileX, RefreshCw } from 'lucide-react';
+import {
+  X,
+  CheckCircle2,
+  AlertTriangle,
+  ShieldCheck,
+  FileCheck,
+  FileX,
+  RefreshCw,
+} from 'lucide-react';
 
 interface StatusTransitionModalProps {
   claim: Claim;
@@ -53,7 +61,9 @@ export const StatusTransitionModal: React.FC<StatusTransitionModalProps> = ({
     setValidationError(null);
 
     if (selectedStatus === 'NEEDS_REVISION' && (!note || note.trim().length === 0)) {
-      setValidationError('A detailed reviewer note explaining the revision requirements is mandatory.');
+      setValidationError(
+        'A detailed reviewer note explaining the revision requirements is mandatory.'
+      );
       return;
     }
 
@@ -113,7 +123,9 @@ export const StatusTransitionModal: React.FC<StatusTransitionModalProps> = ({
         <form onSubmit={handleSubmitClick} className="p-5 space-y-4">
           {/* Current Status Display */}
           <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-xs">
-            <span className="font-semibold text-[var(--text-secondary)]">Current Workflow State:</span>
+            <span className="font-semibold text-[var(--text-secondary)]">
+              Current Workflow State:
+            </span>
             <StatusBadge status={claim.status} isFlagged={claim.flagged} />
           </div>
 
@@ -131,7 +143,8 @@ export const StatusTransitionModal: React.FC<StatusTransitionModalProps> = ({
             </label>
             {legalNextStatuses.length === 0 ? (
               <p className="text-xs text-amber-700 font-medium p-3 bg-amber-50 rounded-lg">
-                This claim has reached a terminal status ({claim.status}) and cannot be transitioned further.
+                This claim has reached a terminal status ({claim.status}) and cannot be transitioned
+                further.
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-2">
@@ -167,7 +180,9 @@ export const StatusTransitionModal: React.FC<StatusTransitionModalProps> = ({
                     <label
                       key={idx}
                       className={`flex items-center justify-between p-2 rounded border text-xs cursor-pointer ${
-                        isDenied ? 'bg-red-100 border-red-300 text-red-900' : 'bg-white border-amber-200 text-gray-800'
+                        isDenied
+                          ? 'bg-red-100 border-red-300 text-red-900'
+                          : 'bg-white border-amber-200 text-gray-800'
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -212,11 +227,7 @@ export const StatusTransitionModal: React.FC<StatusTransitionModalProps> = ({
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              size="sm"
-              disabled={legalNextStatuses.length === 0}
-            >
+            <Button type="submit" size="sm" disabled={legalNextStatuses.length === 0}>
               Confirm Transition
             </Button>
           </div>
@@ -229,7 +240,13 @@ export const StatusTransitionModal: React.FC<StatusTransitionModalProps> = ({
         title={`Confirm Status Transition to ${selectedStatus}`}
         description={`Are you sure you want to transition Claim #${claim._id.slice(-6).toUpperCase()} to ${selectedStatus}? This action will recompute coverage rules and record an immutable audit log entry.`}
         confirmText={`Transition to ${selectedStatus}`}
-        variant={selectedStatus === 'REJECTED' ? 'destructive' : selectedStatus === 'NEEDS_REVISION' ? 'warning' : 'brand'}
+        variant={
+          selectedStatus === 'REJECTED'
+            ? 'destructive'
+            : selectedStatus === 'NEEDS_REVISION'
+              ? 'warning'
+              : 'brand'
+        }
         isLoading={isPending}
         onConfirm={handleExecuteStatusUpdate}
         onClose={() => setShowConfirm(false)}

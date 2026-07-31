@@ -10,6 +10,7 @@ export interface AuthPayload {
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: {
@@ -83,7 +84,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       id: user._id.toString(),
       name: user.name,
       email: user.email,
-      role: user.role,     // Role comes from DB, not JWT — prevents role escalation
+      role: user.role, // Role comes from DB, not JWT — prevents role escalation
       status: user.status,
     };
 

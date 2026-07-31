@@ -68,8 +68,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-gray-50 shrink-0">
           <div>
-            <h3 className="font-bold text-base text-[var(--text-primary)]">Quick Claim Status Transition</h3>
-            <p className="text-xs text-[var(--text-secondary)]">Claim #{claimId.slice(-6).toUpperCase()} • {patientName}</p>
+            <h3 className="font-bold text-base text-[var(--text-primary)]">
+              Quick Claim Status Transition
+            </h3>
+            <p className="text-xs text-[var(--text-secondary)]">
+              Claim #{claimId.slice(-6).toUpperCase()} • {patientName}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -96,7 +100,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             </div>
             <div>
               <span className="text-[var(--text-muted)] font-medium">Total Claimed: </span>
-              <span className="font-bold text-[var(--brand-700)] tabular-nums">${totalClaimed.toFixed(2)}</span>
+              <span className="font-bold text-[var(--brand-700)] tabular-nums">
+                ${totalClaimed.toFixed(2)}
+              </span>
             </div>
           </div>
 
@@ -108,8 +114,16 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             <div className="grid grid-cols-2 gap-2">
               {[
                 { id: 'APPROVED', label: 'Approve Claim', color: 'bg-emerald-600 text-white' },
-                { id: 'PARTIALLY_APPROVED', label: 'Partially Approve', color: 'bg-blue-600 text-white' },
-                { id: 'NEEDS_REVISION', label: 'Request Revision', color: 'bg-amber-600 text-white' },
+                {
+                  id: 'PARTIALLY_APPROVED',
+                  label: 'Partially Approve',
+                  color: 'bg-blue-600 text-white',
+                },
+                {
+                  id: 'NEEDS_REVISION',
+                  label: 'Request Revision',
+                  color: 'bg-amber-600 text-white',
+                },
                 { id: 'REJECTED', label: 'Reject Claim', color: 'bg-red-600 text-white' },
               ].map((opt) => (
                 <button
@@ -143,7 +157,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                     <label
                       key={idx}
                       className={`flex items-center justify-between p-2 rounded-md text-xs cursor-pointer border transition-colors ${
-                        isDenied ? 'bg-red-50 border-red-200 text-red-800' : 'bg-gray-50 border-gray-200 text-gray-700'
+                        isDenied
+                          ? 'bg-red-50 border-red-200 text-red-800'
+                          : 'bg-gray-50 border-gray-200 text-gray-700'
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -159,9 +175,13 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                           }}
                           className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                         />
-                        <span>{item.description} ({item.quantity} x ${item.unitCost})</span>
+                        <span>
+                          {item.description} ({item.quantity} x ${item.unitCost})
+                        </span>
                       </div>
-                      <span className="font-mono font-bold">${(item.quantity * item.unitCost).toFixed(2)}</span>
+                      <span className="font-mono font-bold">
+                        ${(item.quantity * item.unitCost).toFixed(2)}
+                      </span>
                     </label>
                   );
                 })}
@@ -172,7 +192,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
           {/* Reviewer Note */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-[var(--text-primary)]">
-              Reviewer Notes {toStatus === 'NEEDS_REVISION' || toStatus === 'REJECTED' ? '*' : '(Optional)'}
+              Reviewer Notes{' '}
+              {toStatus === 'NEEDS_REVISION' || toStatus === 'REJECTED' ? '*' : '(Optional)'}
             </label>
             <textarea
               value={note}

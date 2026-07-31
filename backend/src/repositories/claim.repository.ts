@@ -1,6 +1,5 @@
 import { Claim, IClaimDocument } from '../models/Claim.model';
 import { ClaimStatus, PaginatedResult } from '../types';
-import mongoose from 'mongoose';
 
 export class ClaimRepository {
   async create(data: Partial<IClaimDocument>): Promise<IClaimDocument> {
@@ -24,17 +23,15 @@ export class ClaimRepository {
       .sort({ createdAt: 1 });
   }
 
-  async findAll(filter: Record<string, any> = {}): Promise<IClaimDocument[]> {
-    return Claim.find(filter)
-      .populate('submittedBy', 'name email role')
-      .sort({ createdAt: -1 });
+  async findAll(filter: Record<string, unknown> = {}): Promise<IClaimDocument[]> {
+    return Claim.find(filter).populate('submittedBy', 'name email role').sort({ createdAt: -1 });
   }
 
   /**
    * MongoDB Server-Side Paginated & Field-Specific Search Query Execution
    */
   async findPaginated(
-    filter: Record<string, any> = {},
+    filter: Record<string, unknown> = {},
     page: number = 1,
     limit: number = 10,
     search?: string,
@@ -97,7 +94,7 @@ export class ClaimRepository {
       coveredAmount?: number;
       patientResponsibility?: number;
       reviewerNotes?: string;
-      items?: any[];
+      items?: unknown[];
       flagged?: boolean;
       flagReason?: string;
     }

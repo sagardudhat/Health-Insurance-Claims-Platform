@@ -43,7 +43,7 @@ export class UserRepository {
     const limitNum = Math.max(1, limit);
     const skip = (pageNum - 1) * limitNum;
 
-    const query: Record<string, any> = {};
+    const query: Record<string, unknown> = {};
 
     if (search && search.trim().length > 0) {
       const regex = new RegExp(search.trim(), 'i');
@@ -60,10 +60,7 @@ export class UserRepository {
     }
 
     const totalItems = await User.countDocuments(query);
-    const data = await User.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum);
+    const data = await User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum);
 
     const totalPages = Math.ceil(totalItems / limitNum) || 1;
 

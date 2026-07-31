@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { reviewApi } from './api';
 import { ClaimStatus } from '@/components/shared/StatusBadge';
 
-export const useReviewerQueue = (params?: { page?: number; limit?: number; search?: string; searchField?: string }) => {
+export const useReviewerQueue = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  searchField?: string;
+}) => {
   return useQuery({
     queryKey: ['reviewerQueue', params],
     queryFn: () => reviewApi.getQueue(params),
@@ -29,7 +34,6 @@ export const useReviewerAllClaims = (params?: {
     queryFn: () => reviewApi.getAllClaims(params),
   });
 };
-
 
 export const useUpdateClaimStatus = () => {
   const queryClient = useQueryClient();

@@ -33,7 +33,11 @@ export default function MyClaimsListPage() {
     setSelectedStatus(statusParam);
   }, [searchParam, searchFieldParam, statusParam]);
 
-  const { data: responseData, isLoading, isError } = useMyClaims({
+  const {
+    data: responseData,
+    isLoading,
+    isError,
+  } = useMyClaims({
     page: pageParam,
     limit: limitParam,
     search: searchParam,
@@ -61,7 +65,12 @@ export default function MyClaimsListPage() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateQueryParams({ search: searchInput.trim(), searchField: selectedSearchField, status: selectedStatus, page: 1 });
+    updateQueryParams({
+      search: searchInput.trim(),
+      searchField: selectedSearchField,
+      status: selectedStatus,
+      page: 1,
+    });
   };
 
   return (
@@ -71,7 +80,8 @@ export default function MyClaimsListPage() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">My Claims Directory</h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Complete list of submitted health insurance claims with search filters and real-time status tracking.
+            Complete list of submitted health insurance claims with search filters and real-time
+            status tracking.
           </p>
         </div>
         <Link href="/provider/claims/new">
@@ -86,7 +96,9 @@ export default function MyClaimsListPage() {
       <div className="bg-white rounded-xl border border-[var(--border)] shadow-xs flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Search & Filter Bar */}
         <div className="p-4 border-b border-[var(--border)] shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h2 className="text-base font-semibold text-[var(--text-primary)] shrink-0">Submitted Claims List</h2>
+          <h2 className="text-base font-semibold text-[var(--text-primary)] shrink-0">
+            Submitted Claims List
+          </h2>
 
           {/* Search Form */}
           <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center gap-2">
@@ -107,7 +119,7 @@ export default function MyClaimsListPage() {
               <option value={CLAIM_STATUSES.PAID}>Paid</option>
               <option value={CLAIM_STATUSES.REJECTED}>Rejected</option>
             </select>
-            
+
             <select
               value={selectedSearchField}
               onChange={(e) => setSelectedSearchField(e.target.value)}
@@ -142,7 +154,12 @@ export default function MyClaimsListPage() {
                   setSearchInput('');
                   setSelectedSearchField('all');
                   setSelectedStatus('ALL');
-                  updateQueryParams({ search: undefined, searchField: undefined, status: undefined, page: 1 });
+                  updateQueryParams({
+                    search: undefined,
+                    searchField: undefined,
+                    status: undefined,
+                    page: 1,
+                  });
                 }}
                 className="text-xs text-gray-500"
               >
@@ -161,7 +178,9 @@ export default function MyClaimsListPage() {
         ) : claims.length === 0 ? (
           <div className="p-12 text-center space-y-3 flex-1 flex flex-col items-center justify-center">
             <FileText className="w-10 h-10 text-gray-300 mx-auto" />
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">No matching claims found</h3>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+              No matching claims found
+            </h3>
             <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
               {searchParam
                 ? `No claims matched your search query "${searchParam}".`
@@ -175,7 +194,12 @@ export default function MyClaimsListPage() {
                   setSearchInput('');
                   setSelectedSearchField('all');
                   setSelectedStatus('ALL');
-                  updateQueryParams({ search: undefined, searchField: undefined, status: undefined, page: 1 });
+                  updateQueryParams({
+                    search: undefined,
+                    searchField: undefined,
+                    status: undefined,
+                    page: 1,
+                  });
                 }}
               >
                 Reset Search
@@ -217,8 +241,12 @@ export default function MyClaimsListPage() {
                         {claim.patient.policyNumber}
                       </td>
                       <td className="py-3.5 px-4 text-xs text-left">
-                        <div className="font-medium text-[var(--text-primary)]">{claim.procedure.name}</div>
-                        <div className="text-[10px] text-[var(--text-muted)]">{claim.procedure.code}</div>
+                        <div className="font-medium text-[var(--text-primary)]">
+                          {claim.procedure.name}
+                        </div>
+                        <div className="text-[10px] text-[var(--text-muted)]">
+                          {claim.procedure.code}
+                        </div>
                       </td>
                       <td className="py-3.5 px-4 text-xs text-[var(--text-secondary)] whitespace-nowrap text-left">
                         {format(new Date(claim.procedure.dateOfService), 'MMM dd, yyyy')}

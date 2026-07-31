@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/axios';
 import { ApiResponse } from '@/features/auth/types';
 import { Claim, ClaimDetailsResponse, PaginatedResponse } from '@/features/claims/types';
+import { ClaimStatus } from '@/components/shared/StatusBadge';
 
 export interface ReviewerStats {
   pendingQueueCount: number;
@@ -9,8 +10,15 @@ export interface ReviewerStats {
 }
 
 export const reviewApi = {
-  getQueue: async (params?: { page?: number; limit?: number; search?: string; searchField?: string }): Promise<PaginatedResponse<Claim>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/reviewer/queue', { params });
+  getQueue: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    searchField?: string;
+  }): Promise<PaginatedResponse<Claim>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/reviewer/queue', {
+      params,
+    });
     return response.data.data;
   },
 
@@ -27,7 +35,10 @@ export const reviewApi = {
     status?: string;
     flaggedOnly?: string;
   }): Promise<PaginatedResponse<Claim>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/reviewer/claims', { params });
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>(
+      '/reviewer/claims',
+      { params }
+    );
     return response.data.data;
   },
 

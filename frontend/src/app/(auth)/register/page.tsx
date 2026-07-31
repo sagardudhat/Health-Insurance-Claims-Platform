@@ -7,7 +7,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, RegisterInput } from '@/validators/auth';
 import { useRegister } from '@/features/auth/hooks';
 import { Button } from '@/components/ui/button';
-import { Activity, Lock, Mail, User as UserIcon, Shield, AlertCircle, ArrowRight } from 'lucide-react';
+import {
+  Activity,
+  Lock,
+  Mail,
+  User as UserIcon,
+  Shield,
+  AlertCircle,
+  ArrowRight,
+} from 'lucide-react';
 
 export default function RegisterPage() {
   const [isRedirecting, setIsRedirecting] = React.useState(false);
@@ -52,8 +60,12 @@ export default function RegisterPage() {
           <div className="w-12 h-12 rounded-xl bg-[var(--brand-500)] text-white flex items-center justify-center font-bold mx-auto shadow-sm">
             <Activity className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">Create Account</h1>
-          <p className="text-xs text-[var(--text-secondary)]">Register your role in the ClaimCare platform</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+            Create Account
+          </h1>
+          <p className="text-xs text-[var(--text-secondary)]">
+            Register your role in the ClaimCare platform
+          </p>
         </div>
 
         {/* Server Error Alert */}
@@ -67,7 +79,9 @@ export default function RegisterPage() {
         {/* Register Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[var(--text-secondary)] block">Full Name</label>
+            <label className="text-xs font-semibold text-[var(--text-secondary)] block">
+              Full Name
+            </label>
             <div className="relative">
               <UserIcon className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
               <input
@@ -77,11 +91,15 @@ export default function RegisterPage() {
                 className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
               />
             </div>
-            {errors.name && <p className="text-xs text-red-600 font-medium">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-xs text-red-600 font-medium">{errors.name.message}</p>
+            )}
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[var(--text-secondary)] block">Email Address</label>
+            <label className="text-xs font-semibold text-[var(--text-secondary)] block">
+              Email Address
+            </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
               <input
@@ -91,11 +109,15 @@ export default function RegisterPage() {
                 className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
               />
             </div>
-            {errors.email && <p className="text-xs text-red-600 font-medium">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-xs text-red-600 font-medium">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[var(--text-secondary)] block">Password</label>
+            <label className="text-xs font-semibold text-[var(--text-secondary)] block">
+              Password
+            </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
               <input
@@ -105,12 +127,16 @@ export default function RegisterPage() {
                 className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
               />
             </div>
-            {errors.password && <p className="text-xs text-red-600 font-medium">{errors.password.message}</p>}
+            {errors.password && (
+              <p className="text-xs text-red-600 font-medium">{errors.password.message}</p>
+            )}
           </div>
 
           {/* Role Selection */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[var(--text-secondary)] block">Select Role</label>
+            <label className="text-xs font-semibold text-[var(--text-secondary)] block">
+              Select Role
+            </label>
             <div className="grid grid-cols-3 gap-2">
               {[
                 { id: 'provider', label: 'Provider' },

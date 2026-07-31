@@ -12,12 +12,25 @@ export const claimsApi = {
     return response.data.data;
   },
 
-  getMyClaims: async (params?: { page?: number; limit?: number; search?: string; searchField?: string; status?: string }): Promise<PaginatedResponse<Claim>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/claims/mine', { params });
+  getMyClaims: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    searchField?: string;
+    status?: string;
+  }): Promise<PaginatedResponse<Claim>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/claims/mine', {
+      params,
+    });
     return response.data.data;
   },
 
-  getMyStats: async (): Promise<{ totalCount: number; pendingCount: number; approvedCount: number; totalApprovedPayout: number }> => {
+  getMyStats: async (): Promise<{
+    totalCount: number;
+    pendingCount: number;
+    approvedCount: number;
+    totalApprovedPayout: number;
+  }> => {
     const response = await apiClient.get<ApiResponse<any>>('/claims/mine/stats');
     return response.data.data;
   },
@@ -28,11 +41,15 @@ export const claimsApi = {
   },
 
   resubmitClaim: async (claimId: string, formData: FormData): Promise<ClaimDetailsResponse> => {
-    const response = await apiClient.patch<ApiResponse<ClaimDetailsResponse>>(`/reviewer/claims/${claimId}/resubmit`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiClient.patch<ApiResponse<ClaimDetailsResponse>>(
+      `/reviewer/claims/${claimId}/resubmit`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
     return response.data.data;
   },
 };

@@ -28,17 +28,29 @@ export function middleware(request: NextRequest) {
 
   // 3. Strict Role-Based Route Mismatch Protection
   if (token && userRole) {
-    const isClaimDetailsPath = pathname.startsWith('/provider/claims/') && pathname !== '/provider/claims/new';
+    const isClaimDetailsPath =
+      pathname.startsWith('/provider/claims/') && pathname !== '/provider/claims/new';
 
-    if (userRole === USER_ROLES.PROVIDER && (pathname.startsWith('/reviewer') || pathname.startsWith('/admin'))) {
+    if (
+      userRole === USER_ROLES.PROVIDER &&
+      (pathname.startsWith('/reviewer') || pathname.startsWith('/admin'))
+    ) {
       return NextResponse.redirect(new URL(ROLE_DASHBOARDS[USER_ROLES.PROVIDER], request.url));
     }
 
-    if (userRole === USER_ROLES.REVIEWER && !isClaimDetailsPath && (pathname.startsWith('/provider') || pathname.startsWith('/admin'))) {
+    if (
+      userRole === USER_ROLES.REVIEWER &&
+      !isClaimDetailsPath &&
+      (pathname.startsWith('/provider') || pathname.startsWith('/admin'))
+    ) {
       return NextResponse.redirect(new URL(ROLE_DASHBOARDS[USER_ROLES.REVIEWER], request.url));
     }
 
-    if (userRole === USER_ROLES.ADMIN && !isClaimDetailsPath && (pathname.startsWith('/provider') || pathname.startsWith('/reviewer'))) {
+    if (
+      userRole === USER_ROLES.ADMIN &&
+      !isClaimDetailsPath &&
+      (pathname.startsWith('/provider') || pathname.startsWith('/reviewer'))
+    ) {
       return NextResponse.redirect(new URL(ROLE_DASHBOARDS[USER_ROLES.ADMIN], request.url));
     }
   }

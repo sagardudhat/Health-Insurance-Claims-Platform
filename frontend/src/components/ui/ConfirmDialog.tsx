@@ -63,13 +63,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border)]">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onClose}
-            disabled={isLoading}
-          >
+          <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isLoading}>
             {cancelText}
           </Button>
           <Button

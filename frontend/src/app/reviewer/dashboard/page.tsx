@@ -66,7 +66,6 @@ export default function ReviewerDashboardPage() {
 
   return (
     <div className="h-full flex flex-col min-h-0 space-y-5 overflow-hidden">
-
       {/* Welcome Header */}
       <div className="shrink-0 bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs">
         <div className="flex items-center gap-2">
@@ -78,7 +77,14 @@ export default function ReviewerDashboardPage() {
           </span>
         </div>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
-          Review pending insurance claims below. Use <Link href="/reviewer/claims" className="text-[var(--brand-500)] font-semibold hover:underline">All Claims</Link> to browse the full directory.
+          Review pending insurance claims below. Use{' '}
+          <Link
+            href="/reviewer/claims"
+            className="text-[var(--brand-500)] font-semibold hover:underline"
+          >
+            All Claims
+          </Link>{' '}
+          to browse the full directory.
         </p>
       </div>
 
@@ -101,17 +107,23 @@ export default function ReviewerDashboardPage() {
           },
           {
             label: 'Avg. Processing',
-            value: stats?.avgProcessingTimeHours != null
-              ? `${Number(stats.avgProcessingTimeHours).toFixed(1)}h`
-              : '—',
+            value:
+              stats?.avgProcessingTimeHours != null
+                ? `${Number(stats.avgProcessingTimeHours).toFixed(1)}h`
+                : '—',
             sub: 'Per claim',
             icon: <BarChart2 className="w-5 h-5 text-[var(--brand-500)]" />,
             color: 'text-[var(--brand-600)]',
           },
         ].map((card) => (
-          <div key={card.label} className="bg-white p-4 rounded-xl border border-[var(--border)] shadow-xs">
+          <div
+            key={card.label}
+            className="bg-white p-4 rounded-xl border border-[var(--border)] shadow-xs"
+          >
             <div className="flex items-center justify-between text-[var(--text-muted)]">
-              <span className="text-[10px] font-semibold uppercase tracking-wider">{card.label}</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider">
+                {card.label}
+              </span>
               {card.icon}
             </div>
             <div className="mt-2 flex items-baseline justify-between">
@@ -124,12 +136,13 @@ export default function ReviewerDashboardPage() {
 
       {/* Pending Claims Table — full paginated */}
       <div className="bg-white rounded-xl border border-[var(--border)] shadow-xs flex-1 flex flex-col min-h-0 overflow-hidden">
-
         {/* Table Header + Search */}
         <div className="shrink-0 p-4 border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-[var(--brand-500)]" />
-            <h2 className="text-base font-semibold text-[var(--text-primary)]">Pending Review Queue</h2>
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">
+              Pending Review Queue
+            </h2>
             {pagination && (
               <span className="text-xs bg-amber-50 text-amber-700 border border-amber-200 font-semibold px-2 py-0.5 rounded-full">
                 {pagination.totalItems} pending
@@ -148,13 +161,18 @@ export default function ReviewerDashboardPage() {
                 className="pl-9 pr-3 py-1.5 text-xs rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white w-48"
               />
             </div>
-            <Button type="submit" size="sm" variant="outline" className="text-xs">Search</Button>
+            <Button type="submit" size="sm" variant="outline" className="text-xs">
+              Search
+            </Button>
             {searchParam && (
               <Button
                 type="button"
                 size="sm"
                 variant="ghost"
-                onClick={() => { setSearchInput(''); updateQueryParams({ search: undefined, page: 1 }); }}
+                onClick={() => {
+                  setSearchInput('');
+                  updateQueryParams({ search: undefined, page: 1 });
+                }}
                 className="text-xs text-gray-500"
               >
                 Clear
@@ -170,7 +188,9 @@ export default function ReviewerDashboardPage() {
           <div className="flex-1 flex flex-col items-center justify-center p-12 text-center space-y-2">
             <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
             <p className="font-semibold text-sm text-[var(--text-primary)]">Queue is clear!</p>
-            <p className="text-xs text-[var(--text-muted)]">No pending claims require review right now.</p>
+            <p className="text-xs text-[var(--text-muted)]">
+              No pending claims require review right now.
+            </p>
           </div>
         ) : (
           <div className="flex-1 flex flex-col min-h-0">
@@ -192,13 +212,21 @@ export default function ReviewerDashboardPage() {
                     <tr key={claim._id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-3 px-4 font-mono text-xs font-semibold text-[var(--brand-700)]">
                         <div className="flex items-center gap-1.5">
-                          {claim.flagged && <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0" />}
+                          {claim.flagged && (
+                            <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                          )}
                           <span>#{claim._id.slice(-6).toUpperCase()}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-semibold text-[var(--text-primary)]">{claim.patient.name}</td>
-                      <td className="py-3 px-4 text-xs font-mono text-[var(--text-secondary)]">{claim.patient.policyNumber}</td>
-                      <td className="py-3 px-4 text-xs text-[var(--text-secondary)]">{claim.procedure.name}</td>
+                      <td className="py-3 px-4 font-semibold text-[var(--text-primary)]">
+                        {claim.patient.name}
+                      </td>
+                      <td className="py-3 px-4 text-xs font-mono text-[var(--text-secondary)]">
+                        {claim.patient.policyNumber}
+                      </td>
+                      <td className="py-3 px-4 text-xs text-[var(--text-secondary)]">
+                        {claim.procedure.name}
+                      </td>
                       <td className="py-3 px-4 font-bold tabular-nums text-[var(--text-primary)]">
                         ${claim.totalClaimed.toFixed(2)}
                       </td>

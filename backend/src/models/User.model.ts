@@ -51,8 +51,8 @@ const userSchema = new Schema<IUserDocument>(
 // Exclude passwordHash when converting doc to JSON
 userSchema.set('toJSON', {
   transform: (_doc, ret) => {
-    delete ret.passwordHash;
-    delete ret.__v;
+    delete (ret as unknown as Record<string, unknown>).passwordHash;
+    delete (ret as unknown as Record<string, unknown>).__v;
     return ret;
   },
 });

@@ -15,7 +15,13 @@ export const useCreateClaim = () => {
   });
 };
 
-export const useMyClaims = (params?: { page?: number; limit?: number; search?: string; searchField?: string; status?: string }) => {
+export const useMyClaims = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  searchField?: string;
+  status?: string;
+}) => {
   return useQuery({
     queryKey: ['myClaims', params],
     queryFn: () => claimsApi.getMyClaims(params),

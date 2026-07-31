@@ -37,8 +37,8 @@ export const Pagination: React.FC<PaginationProps> = ({
       {/* Items Range Display & Page Size Dropdown */}
       <div className="flex items-center gap-3 text-[var(--text-secondary)]">
         <span>
-          Showing <strong className="text-[var(--text-primary)] font-semibold">{startItem}</strong> to{' '}
-          <strong className="text-[var(--text-primary)] font-semibold">{endItem}</strong> of{' '}
+          Showing <strong className="text-[var(--text-primary)] font-semibold">{startItem}</strong>{' '}
+          to <strong className="text-[var(--text-primary)] font-semibold">{endItem}</strong> of{' '}
           <strong className="text-[var(--text-primary)] font-semibold">{totalItems}</strong> entries
         </span>
 

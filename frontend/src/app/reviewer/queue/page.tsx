@@ -8,12 +8,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/skeleton';
-import { 
-  CheckCircle, 
-  Search, 
-  AlertTriangle,
-  ArrowRight
-} from 'lucide-react';
+import { CheckCircle, Search, AlertTriangle, ArrowRight } from 'lucide-react';
 
 export default function ReviewerQueuePage() {
   const router = useRouter();
@@ -69,7 +64,8 @@ export default function ReviewerQueuePage() {
       <div className="shrink-0">
         <h1 className="text-2xl font-bold text-[var(--text-primary)]">Claims Review Queue</h1>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
-          Assess incoming provider claims, execute automated coverage calculations, and record decision audit logs.
+          Assess incoming provider claims, execute automated coverage calculations, and record
+          decision audit logs.
         </p>
       </div>
 
@@ -77,7 +73,9 @@ export default function ReviewerQueuePage() {
       <div className="bg-white rounded-xl border border-[var(--border)] shadow-xs flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Search Bar */}
         <div className="p-4 border-b border-[var(--border)] shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-base font-semibold text-[var(--text-primary)]">Pending Review Queue</h2>
+          <h2 className="text-base font-semibold text-[var(--text-primary)]">
+            Pending Review Queue
+          </h2>
 
           {/* Search Form */}
           <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
@@ -129,7 +127,9 @@ export default function ReviewerQueuePage() {
         ) : queue.length === 0 ? (
           <div className="p-12 text-center space-y-3 flex-1 flex flex-col items-center justify-center">
             <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto" />
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">No pending claims in queue</h3>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+              No pending claims in queue
+            </h3>
             <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
               {searchParam
                 ? `No claims in queue matched your search query "${searchParam}".`
@@ -158,7 +158,9 @@ export default function ReviewerQueuePage() {
                       <td className="py-3.5 px-4 font-mono text-xs font-semibold text-[var(--brand-700)] text-left">
                         <div className="flex items-center gap-1.5">
                           {claim.flagged && (
-                            <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" title={claim.flagReason || 'Flagged for Fraud Audit'} />
+                            <span title={claim.flagReason || 'Flagged for Fraud Audit'}>
+                              <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                            </span>
                           )}
                           <span>#{claim._id.slice(-6).toUpperCase()}</span>
                         </div>
@@ -170,8 +172,12 @@ export default function ReviewerQueuePage() {
                         {claim.patient.policyNumber}
                       </td>
                       <td className="py-3.5 px-4 text-xs text-left">
-                        <div className="font-medium text-[var(--text-primary)]">{claim.procedure.name}</div>
-                        <div className="text-[10px] text-[var(--text-muted)]">{claim.procedure.code}</div>
+                        <div className="font-medium text-[var(--text-primary)]">
+                          {claim.procedure.name}
+                        </div>
+                        <div className="text-[10px] text-[var(--text-muted)]">
+                          {claim.procedure.code}
+                        </div>
                       </td>
                       <td className="py-3.5 px-4 text-xs text-[var(--text-secondary)] text-left">
                         {claim.submittedBy?.name || 'Provider'}

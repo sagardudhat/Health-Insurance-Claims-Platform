@@ -8,10 +8,7 @@ interface StatusBadgeProps {
   isFlagged?: boolean;
 }
 
-const statusConfig: Record<
-  ClaimStatus,
-  { label: string; bg: string; color: string }
-> = {
+const statusConfig: Record<ClaimStatus, { label: string; bg: string; color: string }> = {
   [CLAIM_STATUSES.SUBMITTED]: {
     label: 'Submitted',
     bg: 'var(--status-submitted-bg)',

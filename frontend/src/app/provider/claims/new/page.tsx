@@ -6,18 +6,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateClaim } from '@/features/claims/hooks';
 import { Button } from '@/components/ui/button';
-import { 
-  Plus, 
-  Trash2, 
+import {
+  Plus,
+  Trash2,
   Upload,
-  UploadCloud, 
-  FileText, 
-  User, 
-  Calendar, 
-  DollarSign, 
-  Activity, 
+  UploadCloud,
+  FileText,
+  User,
+  Calendar,
+  DollarSign,
+  Activity,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react';
 
 const todayStr = new Date().toISOString().split('T')[0];
@@ -68,9 +68,7 @@ export default function NewClaimPage() {
       procedureName: '',
       procedureCode: '',
       dateOfService: '',
-      items: [
-        { description: '', quantity: 1, unitCost: 0 },
-      ],
+      items: [{ description: '', quantity: 1, unitCost: 0 }],
     },
   });
 
@@ -90,7 +88,7 @@ export default function NewClaimPage() {
     setFileError(null);
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      
+
       // File validation: PDF/JPEG/PNG, max 5MB
       const invalidType = filesArray.find(
         (f) => !['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'].includes(f.type)
@@ -145,9 +143,12 @@ export default function NewClaimPage() {
     <div className="max-w-4xl mx-auto h-full flex flex-col min-h-0 space-y-4 overflow-hidden">
       {/* Fixed Sticky Header Banner */}
       <div className="shrink-0">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Submit New Insurance Claim</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+          Submit New Insurance Claim
+        </h1>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
-          Enter patient details, treatment procedures, itemized charges, and upload supporting medical bills.
+          Enter patient details, treatment procedures, itemized charges, and upload supporting
+          medical bills.
         </p>
       </div>
 
@@ -159,46 +160,63 @@ export default function NewClaimPage() {
       )}
 
       {/* Main Form Area */}
-      <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex-1 flex flex-col min-h-0 overflow-hidden"
+      >
         {/* Scrollable Form Body Container */}
         <div className="flex-1 overflow-y-auto pr-1 space-y-6 min-h-0 pb-2">
           {/* Patient Details Card */}
           <div className="bg-white p-6 rounded-xl border border-[var(--border)] shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-[var(--border)] pb-3">
               <User className="w-5 h-5 text-[var(--brand-500)]" />
-              <h2 className="text-base font-semibold text-[var(--text-primary)]">1. Patient Information</h2>
+              <h2 className="text-base font-semibold text-[var(--text-primary)]">
+                1. Patient Information
+              </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Patient Full Name *</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                  Patient Full Name *
+                </label>
                 <input
                   {...register('patientName')}
                   placeholder="e.g. John Doe"
                   className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
                 />
-                {errors.patientName && <p className="text-xs text-red-600">{errors.patientName.message}</p>}
+                {errors.patientName && (
+                  <p className="text-xs text-red-600">{errors.patientName.message}</p>
+                )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Policy Number *</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                  Policy Number *
+                </label>
                 <input
                   {...register('policyNumber')}
                   placeholder="e.g. POL-992014"
                   className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
                 />
-                {errors.policyNumber && <p className="text-xs text-red-600">{errors.policyNumber.message}</p>}
+                {errors.policyNumber && (
+                  <p className="text-xs text-red-600">{errors.policyNumber.message}</p>
+                )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Date of Birth *</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                  Date of Birth *
+                </label>
                 <input
                   {...register('patientDob')}
                   type="date"
                   max={todayStr}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
                 />
-                {errors.patientDob && <p className="text-xs text-red-600">{errors.patientDob.message}</p>}
+                {errors.patientDob && (
+                  <p className="text-xs text-red-600">{errors.patientDob.message}</p>
+                )}
               </div>
             </div>
           </div>
@@ -207,39 +225,53 @@ export default function NewClaimPage() {
           <div className="bg-white p-6 rounded-xl border border-[var(--border)] shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-[var(--border)] pb-3">
               <Activity className="w-5 h-5 text-[var(--brand-500)]" />
-              <h2 className="text-base font-semibold text-[var(--text-primary)]">2. Procedure & Treatment</h2>
+              <h2 className="text-base font-semibold text-[var(--text-primary)]">
+                2. Procedure & Treatment
+              </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Procedure Name *</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                  Procedure Name *
+                </label>
                 <input
                   {...register('procedureName')}
                   placeholder="e.g. MRI Knee Scan"
                   className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
                 />
-                {errors.procedureName && <p className="text-xs text-red-600">{errors.procedureName.message}</p>}
+                {errors.procedureName && (
+                  <p className="text-xs text-red-600">{errors.procedureName.message}</p>
+                )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Procedure Code (CPT) *</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                  Procedure Code (CPT) *
+                </label>
                 <input
                   {...register('procedureCode')}
                   placeholder="e.g. CPT-73721"
                   className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
                 />
-                {errors.procedureCode && <p className="text-xs text-red-600">{errors.procedureCode.message}</p>}
+                {errors.procedureCode && (
+                  <p className="text-xs text-red-600">{errors.procedureCode.message}</p>
+                )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--text-secondary)]">Date of Service *</label>
+                <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                  Date of Service *
+                </label>
                 <input
                   {...register('dateOfService')}
                   type="date"
                   max={todayStr}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand-500)] bg-white"
                 />
-                {errors.dateOfService && <p className="text-xs text-red-600">{errors.dateOfService.message}</p>}
+                {errors.dateOfService && (
+                  <p className="text-xs text-red-600">{errors.dateOfService.message}</p>
+                )}
               </div>
             </div>
           </div>
@@ -249,7 +281,9 @@ export default function NewClaimPage() {
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <div className="flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-[var(--brand-500)]" />
-                <h2 className="text-base font-semibold text-[var(--text-primary)]">3. Itemized Charges</h2>
+                <h2 className="text-base font-semibold text-[var(--text-primary)]">
+                  3. Itemized Charges
+                </h2>
               </div>
               <button
                 type="button"
@@ -262,7 +296,9 @@ export default function NewClaimPage() {
             </div>
 
             {fields.length === 0 ? (
-              <p className="text-xs text-[var(--text-muted)] text-center py-4">No line charges added yet.</p>
+              <p className="text-xs text-[var(--text-muted)] text-center py-4">
+                No line charges added yet.
+              </p>
             ) : (
               <div className="space-y-3">
                 {fields.map((fieldItem, index) => (
@@ -308,7 +344,11 @@ export default function NewClaimPage() {
 
                     <div className="col-span-2 flex items-center justify-between pb-1 pl-2">
                       <span className="text-xs font-bold text-[var(--text-primary)] tabular-nums">
-                        ${((watchedItems?.[index]?.quantity || 0) * (watchedItems?.[index]?.unitCost || 0)).toFixed(2)}
+                        $
+                        {(
+                          (watchedItems?.[index]?.quantity || 0) *
+                          (watchedItems?.[index]?.unitCost || 0)
+                        ).toFixed(2)}
                       </span>
                       {fields.length > 1 && (
                         <button
@@ -327,7 +367,9 @@ export default function NewClaimPage() {
 
             <div className="pt-3 border-t border-[var(--border)] flex justify-between items-center text-sm font-bold">
               <span className="text-[var(--text-secondary)]">Total Estimated Claimed:</span>
-              <span className="text-xl text-[var(--brand-700)] tabular-nums">${totalClaimed.toFixed(2)}</span>
+              <span className="text-xl text-[var(--brand-700)] tabular-nums">
+                ${totalClaimed.toFixed(2)}
+              </span>
             </div>
           </div>
 
@@ -335,7 +377,9 @@ export default function NewClaimPage() {
           <div className="bg-white p-6 rounded-xl border border-[var(--border)] shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-[var(--border)] pb-3">
               <Upload className="w-5 h-5 text-[var(--brand-500)]" />
-              <h2 className="text-base font-semibold text-[var(--text-primary)]">4. Mandatory Supporting Documents</h2>
+              <h2 className="text-base font-semibold text-[var(--text-primary)]">
+                4. Mandatory Supporting Documents
+              </h2>
             </div>
 
             {fileError && <p className="text-xs text-red-600 font-medium">{fileError}</p>}
@@ -352,13 +396,17 @@ export default function NewClaimPage() {
               <p className="text-xs font-semibold text-[var(--text-primary)]">
                 Click to upload or drag & drop medical bills or prescription PDF/images
               </p>
-              <p className="text-xs text-[var(--text-muted)] mt-1">PDF, PNG, or JPEG format (Max 5MB each)</p>
+              <p className="text-xs text-[var(--text-muted)] mt-1">
+                PDF, PNG, or JPEG format (Max 5MB each)
+              </p>
             </div>
 
             {/* Selected File List */}
             {selectedFiles.length > 0 && (
               <div className="space-y-2 mt-3">
-                <p className="text-xs font-semibold text-[var(--text-secondary)]">Attached Files ({selectedFiles.length}):</p>
+                <p className="text-xs font-semibold text-[var(--text-secondary)]">
+                  Attached Files ({selectedFiles.length}):
+                </p>
                 <div className="space-y-1.5">
                   {selectedFiles.map((file, i) => (
                     <div
@@ -367,8 +415,12 @@ export default function NewClaimPage() {
                     >
                       <div className="flex items-center gap-2 truncate">
                         <FileText className="w-4 h-4 text-[var(--brand-500)] shrink-0" />
-                        <span className="font-medium text-[var(--text-primary)] truncate">{file.name}</span>
-                        <span className="text-[var(--text-muted)]">({(file.size / 1024).toFixed(1)} KB)</span>
+                        <span className="font-medium text-[var(--text-primary)] truncate">
+                          {file.name}
+                        </span>
+                        <span className="text-[var(--text-muted)]">
+                          ({(file.size / 1024).toFixed(1)} KB)
+                        </span>
                       </div>
                       <button
                         type="button"
@@ -388,7 +440,8 @@ export default function NewClaimPage() {
         {/* Fixed Sticky Footer Action Bar */}
         <div className="shrink-0 bg-white p-4 rounded-xl border border-[var(--border)] shadow-xs flex flex-col md:flex-row items-center justify-between gap-3 mt-2">
           <div className="text-xs text-[var(--text-secondary)]">
-            <span className="font-semibold text-[var(--text-primary)]">Ready for Submission?</span> Ensure patient details & medical document attachments are accurate.
+            <span className="font-semibold text-[var(--text-primary)]">Ready for Submission?</span>{' '}
+            Ensure patient details & medical document attachments are accurate.
           </div>
           <Button
             type="submit"

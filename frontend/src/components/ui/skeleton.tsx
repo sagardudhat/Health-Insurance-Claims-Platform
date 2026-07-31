@@ -5,19 +5,17 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const Skeleton: React.FC<SkeletonProps> = ({ className = '', ...props }) => {
-  return (
-    <div
-      className={`animate-pulse rounded-lg bg-gray-200/80 ${className}`}
-      {...props}
-    />
-  );
+  return <div className={`animate-pulse rounded-lg bg-gray-200/80 ${className}`} {...props} />;
 };
 
 export const StatCardsSkeleton: React.FC<{ count?: number }> = ({ count = 3 }) => {
   return (
     <div className={`grid grid-cols-1 md:grid-cols-${count} gap-4`}>
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs space-y-3">
+        <div
+          key={i}
+          className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-xs space-y-3"
+        >
           <div className="flex items-center justify-between">
             <Skeleton className="h-3 w-24" />
             <Skeleton className="h-5 w-5 rounded-full" />

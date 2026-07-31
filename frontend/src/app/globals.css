@@ -4,45 +4,45 @@
 
 :root {
   /* Surface & Base Neutrals */
-  --bg: #F8F9FB;
-  --surface: #FFFFFF;
-  --border: #E4E7EC;
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --border: #e4e7ec;
 
   /* Typography Colors */
   --text-primary: #101828;
   --text-secondary: #475467;
-  --text-muted: #98A2B3;
+  --text-muted: #98a2b3;
 
   /* Trustworthy Deep Blue-Teal Brand Palette */
-  --brand-50: #EEF6FF;
-  --brand-500: #2E6F95;
-  --brand-600: #24586F;
-  --brand-700: #1B4353;
+  --brand-50: #eef6ff;
+  --brand-500: #2e6f95;
+  --brand-600: #24586f;
+  --brand-700: #1b4353;
 
   /* Semantic Claim Workflow Status Colors */
   --status-submitted: #667085;
-  --status-submitted-bg: #F2F4F7;
+  --status-submitted-bg: #f2f4f7;
 
-  --status-review: #B54708;
-  --status-review-bg: #FFFAEB;
+  --status-review: #b54708;
+  --status-review-bg: #fffaeb;
 
-  --status-revision: #B93815;
-  --status-revision-bg: #FEF3F2;
+  --status-revision: #b93815;
+  --status-revision-bg: #fef3f2;
 
   --status-approved: #067647;
-  --status-approved-bg: #ECFDF3;
+  --status-approved-bg: #ecfdf3;
 
-  --status-partial: #3E7C0A;
-  --status-partial-bg: #F4FBEA;
+  --status-partial: #3e7c0a;
+  --status-partial-bg: #f4fbea;
 
-  --status-rejected: #B42318;
-  --status-rejected-bg: #FEF3F2;
+  --status-rejected: #b42318;
+  --status-rejected-bg: #fef3f2;
 
-  --status-paid: #175CD3;
-  --status-paid-bg: #EFF8FF;
+  --status-paid: #175cd3;
+  --status-paid-bg: #eff8ff;
 
-  --status-flagged: #DC2626;
-  --status-flagged-bg: #FEF2F2;
+  --status-flagged: #dc2626;
+  --status-flagged-bg: #fef2f2;
 }
 
 body {

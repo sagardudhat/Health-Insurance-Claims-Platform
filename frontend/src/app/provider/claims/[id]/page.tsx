@@ -11,15 +11,15 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ClaimDetailsSkeleton } from '@/components/ui/skeleton';
-import { 
-  ArrowLeft, 
-  FileText, 
-  User, 
-  Calendar, 
-  DollarSign, 
-  Download, 
-  AlertTriangle, 
-  CheckCircle2, 
+import {
+  ArrowLeft,
+  FileText,
+  User,
+  Calendar,
+  DollarSign,
+  Download,
+  AlertTriangle,
+  CheckCircle2,
   Clock,
   Activity,
   Loader2,
@@ -30,7 +30,7 @@ import {
   X,
   ClipboardCheck,
   PlayCircle,
-  Banknote
+  Banknote,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -44,14 +44,24 @@ export default function ClaimDetailsPage() {
   const { mutate: updateClaimStatus, isPending: isSubmittingReview } = useUpdateClaimStatus();
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
-  const userRole = user?.role || (pathname.startsWith('/admin') ? 'admin' : pathname.startsWith('/reviewer') ? 'reviewer' : 'provider');
-  const isReviewerOrAdmin = userRole === 'reviewer' || userRole === 'admin' || pathname.startsWith('/reviewer') || pathname.startsWith('/admin');
+  const userRole =
+    user?.role ||
+    (pathname.startsWith('/admin')
+      ? 'admin'
+      : pathname.startsWith('/reviewer')
+        ? 'reviewer'
+        : 'provider');
+  const isReviewerOrAdmin =
+    userRole === 'reviewer' ||
+    userRole === 'admin' ||
+    pathname.startsWith('/reviewer') ||
+    pathname.startsWith('/admin');
 
   const backLink = pathname.startsWith('/admin')
     ? '/admin/claims'
     : pathname.startsWith('/reviewer')
-    ? '/reviewer/queue'
-    : '/provider/claims';
+      ? '/reviewer/queue'
+      : '/provider/claims';
 
   const [isUnflagConfirmOpen, setIsUnflagConfirmOpen] = useState<boolean>(false);
 
@@ -66,7 +76,9 @@ export default function ClaimDetailsPage() {
 
   // Reviewer Modal State
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
-  const [reviewDecision, setReviewDecision] = useState<'APPROVED' | 'PARTIALLY_APPROVED' | 'NEEDS_REVISION' | 'REJECTED'>('APPROVED');
+  const [reviewDecision, setReviewDecision] = useState<
+    'APPROVED' | 'PARTIALLY_APPROVED' | 'NEEDS_REVISION' | 'REJECTED'
+  >('APPROVED');
   const [reviewNote, setReviewNote] = useState<string>('');
   const [deniedItemIds, setDeniedItemIds] = useState<string[]>([]);
 
@@ -97,17 +109,20 @@ export default function ClaimDetailsPage() {
       confirmText: decisionLabels[reviewDecision] || 'Confirm',
       variant: decisionVariants[reviewDecision] || 'brand',
       onConfirm: () => {
-        updateClaimStatus({
-          claimId,
-          toStatus: reviewDecision as any,
-          note: reviewNote,
-          deniedItemIds: reviewDecision === 'PARTIALLY_APPROVED' ? deniedItemIds : [],
-        }, {
-          onSuccess: () => {
-            setIsReviewModalOpen(false);
-            setConfirmAction(null);
+        updateClaimStatus(
+          {
+            claimId,
+            toStatus: reviewDecision as any,
+            note: reviewNote,
+            deniedItemIds: reviewDecision === 'PARTIALLY_APPROVED' ? deniedItemIds : [],
           },
-        });
+          {
+            onSuccess: () => {
+              setIsReviewModalOpen(false);
+              setConfirmAction(null);
+            },
+          }
+        );
       },
     });
   };
@@ -120,7 +135,9 @@ export default function ClaimDetailsPage() {
   const [editProcedureName, setEditProcedureName] = useState<string>('');
   const [editProcedureCode, setEditProcedureCode] = useState<string>('');
   const [editDateOfService, setEditDateOfService] = useState<string>('');
-  const [editItems, setEditItems] = useState<Array<{ description: string; quantity: number; unitCost: number }>>([]);
+  const [editItems, setEditItems] = useState<
+    Array<{ description: string; quantity: number; unitCost: number }>
+  >([]);
   const [editFiles, setEditFiles] = useState<File[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
 
@@ -134,7 +151,7 @@ export default function ClaimDetailsPage() {
         <AlertTriangle className="w-10 h-10 text-red-500 mx-auto" />
         <h2 className="text-lg font-bold text-[var(--text-primary)]">Claim Not Found</h2>
         <p className="text-xs text-[var(--text-muted)]">
-          You don't have access to this claim or it does not exist.
+          You don&apos;t have access to this claim or it does not exist.
         </p>
         <Link href="/provider/dashboard">
           <Button variant="outline" size="sm">
@@ -186,12 +203,24 @@ export default function ClaimDetailsPage() {
       <div className="shrink-0 space-y-3">
         {/* Back Header Nav */}
         <div className="flex items-center justify-between">
-          <Link href={backLink} className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--brand-500)] hover:underline">
+          <Link
+            href={backLink}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--brand-500)] hover:underline"
+          >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to {userRole === 'admin' ? 'Audit Claims List' : userRole === 'reviewer' ? 'Review Queue' : 'My Claims'}</span>
+            <span>
+              Back to{' '}
+              {userRole === 'admin'
+                ? 'Audit Claims List'
+                : userRole === 'reviewer'
+                  ? 'Review Queue'
+                  : 'My Claims'}
+            </span>
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono text-[var(--text-muted)] hidden sm:inline">ID: {claim._id}</span>
+            <span className="text-xs font-mono text-[var(--text-muted)] hidden sm:inline">
+              ID: {claim._id}
+            </span>
             <StatusBadge status={claim.status} isFlagged={claim.flagged} />
             {/* Reviewer Action Button */}
             {isReviewerOrAdmin && claim.status === 'SUBMITTED' && (
@@ -200,12 +229,17 @@ export default function ClaimDetailsPage() {
                 onClick={() =>
                   setConfirmAction({
                     title: 'Start Reviewing This Claim',
-                    description: 'This will move the claim to "Under Review" status, locking it for your assessment. The action is logged to the Audit Trail.',
+                    description:
+                      'This will move the claim to "Under Review" status, locking it for your assessment. The action is logged to the Audit Trail.',
                     confirmText: 'Yes, Start Review',
                     variant: 'brand',
                     onConfirm: () => {
                       updateClaimStatus(
-                        { claimId, toStatus: 'UNDER_REVIEW', note: 'Claim opened for active review' },
+                        {
+                          claimId,
+                          toStatus: 'UNDER_REVIEW',
+                          note: 'Claim opened for active review',
+                        },
                         {
                           onSuccess: () => {
                             setConfirmAction(null);
@@ -233,30 +267,35 @@ export default function ClaimDetailsPage() {
                 Submit Decision
               </Button>
             )}
-            {isReviewerOrAdmin && (claim.status === 'APPROVED' || claim.status === 'PARTIALLY_APPROVED') && (
-              <Button
-                size="sm"
-                onClick={() =>
-                  setConfirmAction({
-                    title: 'Mark Claim as Paid',
-                    description: `You are about to finalize payment for claim #${claim._id.slice(-6).toUpperCase()} (Total: $${claim.totalClaimed.toFixed(2)}). This will mark the claim as PAID and notify the provider. This cannot be undone.`,
-                    confirmText: 'Yes, Mark as Paid',
-                    variant: 'brand',
-                    onConfirm: () => {
-                      updateClaimStatus(
-                        { claimId, toStatus: 'PAID', note: 'Insurance reimbursement payment processed' },
-                        { onSuccess: () => setConfirmAction(null) }
-                      );
-                    },
-                  })
-                }
-                isLoading={isSubmittingReview}
-                className="bg-[var(--status-approved)] hover:bg-green-800 text-white text-xs font-semibold flex items-center gap-1.5"
-              >
-                <Banknote className="w-3.5 h-3.5" />
-                Mark as Paid
-              </Button>
-            )}
+            {isReviewerOrAdmin &&
+              (claim.status === 'APPROVED' || claim.status === 'PARTIALLY_APPROVED') && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    setConfirmAction({
+                      title: 'Mark Claim as Paid',
+                      description: `You are about to finalize payment for claim #${claim._id.slice(-6).toUpperCase()} (Total: $${claim.totalClaimed.toFixed(2)}). This will mark the claim as PAID and notify the provider. This cannot be undone.`,
+                      confirmText: 'Yes, Mark as Paid',
+                      variant: 'brand',
+                      onConfirm: () => {
+                        updateClaimStatus(
+                          {
+                            claimId,
+                            toStatus: 'PAID',
+                            note: 'Insurance reimbursement payment processed',
+                          },
+                          { onSuccess: () => setConfirmAction(null) }
+                        );
+                      },
+                    })
+                  }
+                  isLoading={isSubmittingReview}
+                  className="bg-[var(--status-approved)] hover:bg-green-800 text-white text-xs font-semibold flex items-center gap-1.5"
+                >
+                  <Banknote className="w-3.5 h-3.5" />
+                  Mark as Paid
+                </Button>
+              )}
           </div>
         </div>
 
@@ -275,7 +314,8 @@ export default function ClaimDetailsPage() {
                   </span>
                 </div>
                 <p className="text-xs text-red-700 mt-0.5">
-                  {claim.flagReason || 'Total claimed amount exceeds 3x platform historical average for this procedure code.'}
+                  {claim.flagReason ||
+                    'Total claimed amount exceeds 3x platform historical average for this procedure code.'}
                 </p>
               </div>
             </div>
@@ -312,7 +352,9 @@ export default function ClaimDetailsPage() {
                     setEditPatientDob(new Date(claim.patient.dob).toISOString().split('T')[0]);
                     setEditProcedureName(claim.procedure.name);
                     setEditProcedureCode(claim.procedure.code);
-                    setEditDateOfService(new Date(claim.procedure.dateOfService).toISOString().split('T')[0]);
+                    setEditDateOfService(
+                      new Date(claim.procedure.dateOfService).toISOString().split('T')[0]
+                    );
                     setEditItems(
                       claim.items.map((item) => ({
                         description: item.description,
@@ -329,8 +371,6 @@ export default function ClaimDetailsPage() {
             <p className="text-xs leading-relaxed pl-6">{claim.reviewerNotes}</p>
           </div>
         )}
-
-
       </div>
 
       {/* Main Content Body (2-Column Responsive Layout) */}
@@ -338,12 +378,18 @@ export default function ClaimDetailsPage() {
         {/* Left Column (Details & Charges - 2 Spans) */}
         <div className="lg:col-span-2 overflow-y-auto pr-1 space-y-6 min-h-0">
           {isEditing ? (
-            <form onSubmit={handleExecuteResubmit} className="bg-white p-6 rounded-xl border-2 border-amber-300 shadow-md space-y-6">
+            <form
+              onSubmit={handleExecuteResubmit}
+              className="bg-white p-6 rounded-xl border-2 border-amber-300 shadow-md space-y-6"
+            >
               <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
                 <div>
-                  <h3 className="text-base font-bold text-[var(--text-primary)]">Edit & Resubmit Revised Claim</h3>
+                  <h3 className="text-base font-bold text-[var(--text-primary)]">
+                    Edit & Resubmit Revised Claim
+                  </h3>
                   <p className="text-xs text-[var(--text-muted)]">
-                    Update patient details, procedure information, or line item charges as requested by the reviewer.
+                    Update patient details, procedure information, or line item charges as requested
+                    by the reviewer.
                   </p>
                 </div>
                 <Button
@@ -365,10 +411,14 @@ export default function ClaimDetailsPage() {
 
               {/* Patient Information Inputs */}
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Patient Details</h4>
+                <h4 className="text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">
+                  Patient Details
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Patient Name</label>
+                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                      Patient Name
+                    </label>
                     <input
                       type="text"
                       value={editPatientName}
@@ -378,7 +428,9 @@ export default function ClaimDetailsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Policy Number</label>
+                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                      Policy Number
+                    </label>
                     <input
                       type="text"
                       value={editPolicyNumber}
@@ -388,7 +440,9 @@ export default function ClaimDetailsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Date of Birth</label>
+                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                      Date of Birth
+                    </label>
                     <input
                       type="date"
                       value={editPatientDob}
@@ -402,10 +456,14 @@ export default function ClaimDetailsPage() {
 
               {/* Procedure Information Inputs */}
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Procedure Details</h4>
+                <h4 className="text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">
+                  Procedure Details
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Procedure Name</label>
+                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                      Procedure Name
+                    </label>
                     <input
                       type="text"
                       value={editProcedureName}
@@ -415,7 +473,9 @@ export default function ClaimDetailsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Procedure Code (CPT)</label>
+                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                      Procedure Code (CPT)
+                    </label>
                     <input
                       type="text"
                       value={editProcedureCode}
@@ -425,7 +485,9 @@ export default function ClaimDetailsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Date of Service</label>
+                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                      Date of Service
+                    </label>
                     <input
                       type="date"
                       value={editDateOfService}
@@ -440,12 +502,16 @@ export default function ClaimDetailsPage() {
               {/* Itemized Line Items Table Edit */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Itemized Line Charges</h4>
+                  <h4 className="text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">
+                    Itemized Line Charges
+                  </h4>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setEditItems([...editItems, { description: '', quantity: 1, unitCost: 0 }])}
+                    onClick={() =>
+                      setEditItems([...editItems, { description: '', quantity: 1, unitCost: 0 }])
+                    }
                     className="text-xs flex items-center gap-1"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -502,7 +568,10 @@ export default function ClaimDetailsPage() {
                               value={item.unitCost}
                               onChange={(e) => {
                                 const newItems = [...editItems];
-                                newItems[idx].unitCost = Math.max(0, parseFloat(e.target.value) || 0);
+                                newItems[idx].unitCost = Math.max(
+                                  0,
+                                  parseFloat(e.target.value) || 0
+                                );
                                 setEditItems(newItems);
                               }}
                               className="w-full px-2 py-1 text-xs border border-[var(--border)] rounded text-right font-mono"
@@ -529,10 +598,14 @@ export default function ClaimDetailsPage() {
 
               {/* Attach Additional Revised Documents */}
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">Additional Supporting Medical Documents</h4>
+                <h4 className="text-xs font-semibold uppercase text-[var(--text-secondary)] tracking-wider">
+                  Additional Supporting Medical Documents
+                </h4>
                 <div className="p-4 border-2 border-dashed border-[var(--border)] rounded-lg text-center space-y-2 bg-gray-50">
                   <Upload className="w-6 h-6 text-gray-400 mx-auto" />
-                  <p className="text-xs text-[var(--text-secondary)]">Attach additional PDFs or images to resolve reviewer feedback.</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Attach additional PDFs or images to resolve reviewer feedback.
+                  </p>
                   <input
                     type="file"
                     multiple
@@ -544,7 +617,12 @@ export default function ClaimDetailsPage() {
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t border-[var(--border)]">
-                <Button type="button" variant="outline" size="sm" onClick={() => setIsEditing(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(false)}
+                >
                   Cancel
                 </Button>
                 <Button
@@ -570,7 +648,9 @@ export default function ClaimDetailsPage() {
                   <div className="space-y-1.5 text-xs">
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Name:</span>
-                      <span className="font-semibold text-[var(--text-primary)]">{claim.patient.name}</span>
+                      <span className="font-semibold text-[var(--text-primary)]">
+                        {claim.patient.name}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Policy Number:</span>
@@ -591,7 +671,9 @@ export default function ClaimDetailsPage() {
                   <div className="space-y-1.5 text-xs">
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Procedure Name:</span>
-                      <span className="font-semibold text-[var(--text-primary)]">{claim.procedure.name}</span>
+                      <span className="font-semibold text-[var(--text-primary)]">
+                        {claim.procedure.name}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Procedure Code:</span>
@@ -616,13 +698,20 @@ export default function ClaimDetailsPage() {
                       </h3>
                     </div>
                     <span className="text-xs font-mono text-[var(--text-muted)]">
-                      Policy #{claim.patient.policyNumber} (Calendar Year {new Date(claim.procedure.dateOfService).getFullYear()})
+                      Policy #{claim.patient.policyNumber} (Calendar Year{' '}
+                      {new Date(claim.procedure.dateOfService).getFullYear()})
                     </span>
                   </div>
 
                   {(() => {
-                    const approvedTotal = claim.items.reduce((sum, item) => (item.isDenied ? sum : sum + item.quantity * item.unitCost), 0);
-                    const deniedTotal = claim.items.reduce((sum, item) => (item.isDenied ? sum + item.quantity * item.unitCost : sum), 0);
+                    const approvedTotal = claim.items.reduce(
+                      (sum, item) => (item.isDenied ? sum : sum + item.quantity * item.unitCost),
+                      0
+                    );
+                    const deniedTotal = claim.items.reduce(
+                      (sum, item) => (item.isDenied ? sum + item.quantity * item.unitCost : sum),
+                      0
+                    );
 
                     return (
                       <div className="space-y-4">
@@ -635,15 +724,18 @@ export default function ClaimDetailsPage() {
                               ${claim.totalClaimed.toFixed(2)}
                             </p>
                             <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
-                              Approved: ${approvedTotal.toFixed(2)} {deniedTotal > 0 ? `| Denied: $${deniedTotal.toFixed(2)}` : ''}
+                              Approved: ${approvedTotal.toFixed(2)}{' '}
+                              {deniedTotal > 0 ? `| Denied: $${deniedTotal.toFixed(2)}` : ''}
                             </p>
                           </div>
 
-                          <div className={`p-3.5 rounded-lg border ${
-                            claim.coveredAmount === 0 && approvedTotal > 0
-                              ? 'bg-amber-50 border-amber-300 text-amber-900'
-                              : 'bg-blue-50 border-blue-200 text-blue-900'
-                          }`}>
+                          <div
+                            className={`p-3.5 rounded-lg border ${
+                              claim.coveredAmount === 0 && approvedTotal > 0
+                                ? 'bg-amber-50 border-amber-300 text-amber-900'
+                                : 'bg-blue-50 border-blue-200 text-blue-900'
+                            }`}
+                          >
                             <div className="flex items-center justify-between">
                               <p className="text-[10px] font-semibold uppercase tracking-wider">
                                 Annual Deductible ($500)
@@ -703,7 +795,9 @@ export default function ClaimDetailsPage() {
               {/* Itemized Line Charges Table */}
               <div className="bg-white rounded-xl border border-[var(--border)] shadow-xs overflow-hidden">
                 <div className="p-4 border-b border-[var(--border)]">
-                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">Itemized Charges</h3>
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                    Itemized Charges
+                  </h3>
                 </div>
                 <table className="w-full text-left text-xs border-collapse">
                   <thead className="bg-gray-50 text-[var(--text-secondary)] uppercase font-semibold border-b border-[var(--border)]">
@@ -716,12 +810,17 @@ export default function ClaimDetailsPage() {
                   </thead>
                   <tbody className="divide-y divide-[var(--border)]">
                     {claim.items.map((item, idx) => (
-                      <tr key={idx} className={`hover:bg-gray-50 ${item.isDenied ? 'bg-red-50/50' : ''}`}>
+                      <tr
+                        key={idx}
+                        className={`hover:bg-gray-50 ${item.isDenied ? 'bg-red-50/50' : ''}`}
+                      >
                         <td className="py-3 px-4 font-medium text-[var(--text-primary)] text-left">
                           <div className="flex items-center gap-2">
                             <span>{item.description}</span>
-                            {['APPROVED', 'PARTIALLY_APPROVED', 'REJECTED', 'PAID'].includes(claim.status) && (
-                              item.isDenied ? (
+                            {['APPROVED', 'PARTIALLY_APPROVED', 'REJECTED', 'PAID'].includes(
+                              claim.status
+                            ) &&
+                              (item.isDenied ? (
                                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 uppercase">
                                   Denied
                                 </span>
@@ -729,20 +828,25 @@ export default function ClaimDetailsPage() {
                                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase">
                                   Approved
                                 </span>
-                              )
-                            )}
+                              ))}
                           </div>
                         </td>
                         <td className="py-3 px-4 text-left">{item.quantity}</td>
-                        <td className="py-3 px-4 text-left tabular-nums">${item.unitCost.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-left font-bold tabular-nums">${(item.quantity * item.unitCost).toFixed(2)}</td>
+                        <td className="py-3 px-4 text-left tabular-nums">
+                          ${item.unitCost.toFixed(2)}
+                        </td>
+                        <td className="py-3 px-4 text-left font-bold tabular-nums">
+                          ${(item.quantity * item.unitCost).toFixed(2)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
                 <div className="p-4 bg-[var(--brand-50)] border-t border-[var(--border)] flex justify-between items-center text-sm font-bold">
                   <span className="text-[var(--brand-700)]">Total Claimed Amount:</span>
-                  <span className="text-[var(--brand-600)] tabular-nums text-lg">${claim.totalClaimed.toFixed(2)}</span>
+                  <span className="text-[var(--brand-600)] tabular-nums text-lg">
+                    ${claim.totalClaimed.toFixed(2)}
+                  </span>
                 </div>
               </div>
 
@@ -752,7 +856,9 @@ export default function ClaimDetailsPage() {
                   Supporting Documents ({claim.documents.length})
                 </h3>
                 {claim.documents.length === 0 ? (
-                  <p className="text-xs text-[var(--text-muted)]">No supporting documents attached.</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    No supporting documents attached.
+                  </p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {claim.documents.map((doc) => {
@@ -764,7 +870,9 @@ export default function ClaimDetailsPage() {
                         >
                           <div className="flex items-center gap-2 truncate">
                             <FileText className="w-4 h-4 text-[var(--brand-500)] shrink-0" />
-                            <span className="font-medium text-[var(--text-primary)] truncate">{doc.originalName}</span>
+                            <span className="font-medium text-[var(--text-primary)] truncate">
+                              {doc.originalName}
+                            </span>
                           </div>
                           <a
                             href={downloadUrl}
@@ -796,10 +904,15 @@ export default function ClaimDetailsPage() {
 
           <div className="mt-3 flex-1 overflow-y-auto min-h-0 space-y-3 pr-1">
             {auditTrail.length === 0 ? (
-              <p className="text-xs text-[var(--text-muted)] py-4 text-center">No audit logs recorded.</p>
+              <p className="text-xs text-[var(--text-muted)] py-4 text-center">
+                No audit logs recorded.
+              </p>
             ) : (
               auditTrail.map((log) => (
-                <div key={log._id} className="flex items-start gap-2.5 text-xs p-3 rounded-lg bg-gray-50 border border-[var(--border)]">
+                <div
+                  key={log._id}
+                  className="flex items-start gap-2.5 text-xs p-3 rounded-lg bg-gray-50 border border-[var(--border)]"
+                >
                   <Clock className="w-4 h-4 text-[var(--brand-500)] shrink-0 mt-0.5" />
                   <div className="space-y-1 flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1 flex-wrap">
@@ -808,7 +921,9 @@ export default function ClaimDetailsPage() {
                       </span>
                       <StatusBadge status={log.toStatus} />
                     </div>
-                    <p className="text-[var(--text-secondary)] text-[11px] leading-snug">{log.note || 'No notes attached'}</p>
+                    <p className="text-[var(--text-secondary)] text-[11px] leading-snug">
+                      {log.note || 'No notes attached'}
+                    </p>
                     <div className="flex items-center justify-between pt-1 border-t border-[var(--border)] text-[10px] text-[var(--text-muted)]">
                       <span>By: {log.performedBy?.name || 'System'}</span>
                       <span>{format(new Date(log.timestamp), 'MMM dd, HH:mm')}</span>
@@ -827,7 +942,7 @@ export default function ClaimDetailsPage() {
         title={`Clear Fraud Flag on Claim #${claim._id.slice(-6).toUpperCase()}`}
         description="Are you sure you want to remove the fraud flag from this claim? The claim status will return to normal state."
         confirmText="Clear Fraud Flag"
-        variant="default"
+        variant="brand"
         isLoading={isUnflagging}
         onConfirm={() => {
           unflagClaim(claim._id, {
@@ -857,8 +972,12 @@ export default function ClaimDetailsPage() {
                   <ClipboardCheck className="w-4 h-4 text-[var(--brand-500)]" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-[var(--text-primary)]">Submit Review Decision</h2>
-                  <p className="text-[11px] text-[var(--text-muted)]">Claim #{claim._id.slice(-6).toUpperCase()}</p>
+                  <h2 className="text-sm font-bold text-[var(--text-primary)]">
+                    Submit Review Decision
+                  </h2>
+                  <p className="text-[11px] text-[var(--text-muted)]">
+                    Claim #{claim._id.slice(-6).toUpperCase()}
+                  </p>
                 </div>
               </div>
               <button
@@ -871,7 +990,6 @@ export default function ClaimDetailsPage() {
 
             {/* Modal Body */}
             <div className="p-6 space-y-5">
-
               {/* Step 1: Decision */}
               <div className="space-y-2.5">
                 <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
@@ -879,10 +997,32 @@ export default function ClaimDetailsPage() {
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { id: 'APPROVED', label: '✓ Approve', desc: 'Approve full claim', activeClass: 'bg-[var(--status-approved)] border-[var(--status-approved)] text-white' },
-                    { id: 'PARTIALLY_APPROVED', label: '◑ Partial', desc: 'Approve some items', activeClass: 'bg-[var(--brand-500)] border-[var(--brand-500)] text-white' },
-                    { id: 'NEEDS_REVISION', label: '↩ Revision', desc: 'Request corrections', activeClass: 'bg-amber-500 border-amber-500 text-white' },
-                    { id: 'REJECTED', label: '✕ Reject', desc: 'Deny this claim', activeClass: 'bg-[var(--status-rejected)] border-[var(--status-rejected)] text-white' },
+                    {
+                      id: 'APPROVED',
+                      label: '✓ Approve',
+                      desc: 'Approve full claim',
+                      activeClass:
+                        'bg-[var(--status-approved)] border-[var(--status-approved)] text-white',
+                    },
+                    {
+                      id: 'PARTIALLY_APPROVED',
+                      label: '◑ Partial',
+                      desc: 'Approve some items',
+                      activeClass: 'bg-[var(--brand-500)] border-[var(--brand-500)] text-white',
+                    },
+                    {
+                      id: 'NEEDS_REVISION',
+                      label: '↩ Revision',
+                      desc: 'Request corrections',
+                      activeClass: 'bg-amber-500 border-amber-500 text-white',
+                    },
+                    {
+                      id: 'REJECTED',
+                      label: '✕ Reject',
+                      desc: 'Deny this claim',
+                      activeClass:
+                        'bg-[var(--status-rejected)] border-[var(--status-rejected)] text-white',
+                    },
                   ].map((opt) => (
                     <button
                       key={opt.id}
@@ -894,8 +1034,16 @@ export default function ClaimDetailsPage() {
                           : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--brand-500)]/60'
                       }`}
                     >
-                      <div className={`text-sm font-bold ${reviewDecision === opt.id ? 'text-inherit' : 'text-[var(--text-primary)]'}`}>{opt.label}</div>
-                      <div className={`text-[11px] mt-0.5 ${reviewDecision === opt.id ? 'opacity-80' : 'text-[var(--text-muted)]'}`}>{opt.desc}</div>
+                      <div
+                        className={`text-sm font-bold ${reviewDecision === opt.id ? 'text-inherit' : 'text-[var(--text-primary)]'}`}
+                      >
+                        {opt.label}
+                      </div>
+                      <div
+                        className={`text-[11px] mt-0.5 ${reviewDecision === opt.id ? 'opacity-80' : 'text-[var(--text-muted)]'}`}
+                      >
+                        {opt.desc}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -915,7 +1063,9 @@ export default function ClaimDetailsPage() {
                         <label
                           key={idx}
                           className={`flex items-center justify-between px-4 py-2.5 text-xs cursor-pointer transition-colors ${
-                            isDenied ? 'bg-red-50 text-red-700' : 'bg-white text-[var(--text-secondary)] hover:bg-gray-50'
+                            isDenied
+                              ? 'bg-red-50 text-red-700'
+                              : 'bg-white text-[var(--text-secondary)] hover:bg-gray-50'
                           }`}
                         >
                           <div className="flex items-center gap-2.5">
@@ -928,9 +1078,13 @@ export default function ClaimDetailsPage() {
                               }}
                               className="w-3.5 h-3.5 rounded accent-red-500"
                             />
-                            <span className={isDenied ? 'line-through opacity-60' : ''}>{item.description}</span>
+                            <span className={isDenied ? 'line-through opacity-60' : ''}>
+                              {item.description}
+                            </span>
                           </div>
-                          <span className="font-mono font-semibold">${(item.quantity * item.unitCost).toFixed(2)}</span>
+                          <span className="font-mono font-semibold">
+                            ${(item.quantity * item.unitCost).toFixed(2)}
+                          </span>
                         </label>
                       );
                     })}
@@ -951,50 +1105,67 @@ export default function ClaimDetailsPage() {
                   onChange={(e) => setReviewNote(e.target.value)}
                   rows={3}
                   placeholder={
-                    reviewDecision === 'APPROVED' ? 'Optional — any notes for this approval...'
-                    : reviewDecision === 'PARTIALLY_APPROVED' ? 'Explain which items were denied and why...'
-                    : reviewDecision === 'NEEDS_REVISION' ? 'Describe what corrections the provider must make...'
-                    : 'Provide reason for rejection...'
+                    reviewDecision === 'APPROVED'
+                      ? 'Optional — any notes for this approval...'
+                      : reviewDecision === 'PARTIALLY_APPROVED'
+                        ? 'Explain which items were denied and why...'
+                        : reviewDecision === 'NEEDS_REVISION'
+                          ? 'Describe what corrections the provider must make...'
+                          : 'Provide reason for rejection...'
                   }
                   className="w-full px-3 py-2.5 text-xs rounded-xl border border-[var(--border)] bg-[var(--bg)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-500)] focus:border-[var(--brand-500)] resize-none"
                 />
               </div>
 
               {/* Coverage Preview (approve/partial only) */}
-              {(reviewDecision === 'APPROVED' || reviewDecision === 'PARTIALLY_APPROVED') && (() => {
-                const activeSum = claim.items.reduce((sum, item, idx) => {
-                  const itemId = item._id || String(idx);
-                  if (reviewDecision === 'PARTIALLY_APPROVED' && deniedItemIds.includes(itemId)) return sum;
-                  return sum + (item.quantity * item.unitCost);
-                }, 0);
-                const deductible = Math.min(500, activeSum);
-                const estCovered = Math.max(0, activeSum - deductible) * 0.8;
-                const estPatient = claim.totalClaimed - estCovered;
-                return (
-                  <div className="bg-[var(--brand-50)] rounded-xl border border-[var(--brand-500)]/25 p-3">
-                    <p className="text-[10px] font-semibold text-[var(--brand-700)] uppercase tracking-wider mb-2">Coverage Preview · $500 Ded. + 80% Co-Ins.</p>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div className="bg-white border border-[var(--border)] rounded-lg p-2">
-                        <div className="text-[10px] text-[var(--text-muted)]">Claimed</div>
-                        <div className="text-sm font-bold text-[var(--text-primary)]">${claim.totalClaimed.toFixed(2)}</div>
-                      </div>
-                      <div className="bg-[var(--status-approved-bg)] border border-[var(--status-approved)]/30 rounded-lg p-2">
-                        <div className="text-[10px] text-[var(--status-approved)] font-semibold">Insurance</div>
-                        <div className="text-sm font-bold text-[var(--status-approved)]">${estCovered.toFixed(2)}</div>
-                      </div>
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
-                        <div className="text-[10px] text-amber-700 font-semibold">Patient</div>
-                        <div className="text-sm font-bold text-amber-700">${estPatient.toFixed(2)}</div>
+              {(reviewDecision === 'APPROVED' || reviewDecision === 'PARTIALLY_APPROVED') &&
+                (() => {
+                  const activeSum = claim.items.reduce((sum, item, idx) => {
+                    const itemId = item._id || String(idx);
+                    if (reviewDecision === 'PARTIALLY_APPROVED' && deniedItemIds.includes(itemId))
+                      return sum;
+                    return sum + item.quantity * item.unitCost;
+                  }, 0);
+                  const deductible = Math.min(500, activeSum);
+                  const estCovered = Math.max(0, activeSum - deductible) * 0.8;
+                  const estPatient = claim.totalClaimed - estCovered;
+                  return (
+                    <div className="bg-[var(--brand-50)] rounded-xl border border-[var(--brand-500)]/25 p-3">
+                      <p className="text-[10px] font-semibold text-[var(--brand-700)] uppercase tracking-wider mb-2">
+                        Coverage Preview · $500 Ded. + 80% Co-Ins.
+                      </p>
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="bg-white border border-[var(--border)] rounded-lg p-2">
+                          <div className="text-[10px] text-[var(--text-muted)]">Claimed</div>
+                          <div className="text-sm font-bold text-[var(--text-primary)]">
+                            ${claim.totalClaimed.toFixed(2)}
+                          </div>
+                        </div>
+                        <div className="bg-[var(--status-approved-bg)] border border-[var(--status-approved)]/30 rounded-lg p-2">
+                          <div className="text-[10px] text-[var(--status-approved)] font-semibold">
+                            Insurance
+                          </div>
+                          <div className="text-sm font-bold text-[var(--status-approved)]">
+                            ${estCovered.toFixed(2)}
+                          </div>
+                        </div>
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
+                          <div className="text-[10px] text-amber-700 font-semibold">Patient</div>
+                          <div className="text-sm font-bold text-amber-700">
+                            ${estPatient.toFixed(2)}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })()}
+                  );
+                })()}
             </div>
 
             {/* Modal Footer */}
             <div className="px-6 py-4 bg-gray-50 border-t border-[var(--border)] flex items-center justify-between gap-3">
-              <p className="text-[11px] text-[var(--text-muted)]">Decision is logged to the Audit Trail.</p>
+              <p className="text-[11px] text-[var(--text-muted)]">
+                Decision is logged to the Audit Trail.
+              </p>
               <div className="flex items-center gap-2">
                 <Button
                   type="button"

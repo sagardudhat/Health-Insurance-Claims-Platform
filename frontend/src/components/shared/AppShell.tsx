@@ -5,20 +5,20 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/features/auth/store';
 import { USER_ROLES, ROLE_LABELS, UserRole } from '@/config/constants';
-import { 
-  FileText, 
-  PlusCircle, 
-  Users, 
-  ShieldAlert, 
-  BarChart3, 
-  LogOut, 
+import {
+  FileText,
+  PlusCircle,
+  Users,
+  ShieldAlert,
+  BarChart3,
+  LogOut,
   Activity,
   ChevronLeft,
   ChevronRight,
   Menu,
   X,
   LayoutDashboard,
-  User as UserIcon
+  User as UserIcon,
 } from 'lucide-react';
 
 interface NavItem {
@@ -165,20 +165,30 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           className="hidden md:flex items-center justify-center w-6 h-6 rounded-full border border-[var(--border)] bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 shadow-xs absolute -right-3 top-5 z-50 transition-transform hover:scale-110 cursor-pointer"
           title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
-          {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+          {isCollapsed ? (
+            <ChevronRight className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronLeft className="w-3.5 h-3.5" />
+          )}
         </button>
 
         <div>
           {/* Sidebar Brand Header */}
-          <div className={`h-16 flex items-center px-4 border-b border-[var(--border)] ${isCollapsed ? 'md:justify-center' : 'justify-between'}`}>
+          <div
+            className={`h-16 flex items-center px-4 border-b border-[var(--border)] ${isCollapsed ? 'md:justify-center' : 'justify-between'}`}
+          >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-[var(--brand-500)] text-white flex items-center justify-center font-bold shadow-sm shrink-0">
                 <Activity className="w-5 h-5" />
               </div>
               {(!isCollapsed || isMobileOpen) && (
                 <div className="truncate">
-                  <h1 className="font-semibold text-sm leading-tight text-[var(--text-primary)]">ClaimCare</h1>
-                  <p className="text-[10px] text-[var(--text-muted)] font-medium">Health Claims Platform</p>
+                  <h1 className="font-semibold text-sm leading-tight text-[var(--text-primary)]">
+                    ClaimCare
+                  </h1>
+                  <p className="text-[10px] text-[var(--text-muted)] font-medium">
+                    Health Claims Platform
+                  </p>
                 </div>
               )}
             </div>
@@ -197,7 +207,9 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           <div className="p-3">
             {(!isCollapsed || isMobileOpen) && (
               <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                {mounted && currentRole && ROLE_LABELS[currentRole] ? ROLE_LABELS[currentRole] : 'Navigation'}
+                {mounted && currentRole && ROLE_LABELS[currentRole]
+                  ? ROLE_LABELS[currentRole]
+                  : 'Navigation'}
               </div>
             )}
 
@@ -256,7 +268,9 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                       {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </div>
                     <div className="truncate">
-                      <p className="text-xs font-semibold text-[var(--text-primary)] truncate">{user.name}</p>
+                      <p className="text-xs font-semibold text-[var(--text-primary)] truncate">
+                        {user.name}
+                      </p>
                       <div className="flex items-center gap-1">
                         <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                         <span className="text-[10px] text-[var(--text-secondary)] font-medium truncate">

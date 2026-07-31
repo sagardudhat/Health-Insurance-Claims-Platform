@@ -20,7 +20,8 @@ export default function HomePage() {
           Design System & Status Badge Verification
         </h1>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
-          Scaffold test page verifying token colors, badge contrast, dot indicators, and role shell layout.
+          Scaffold test page verifying token colors, badge contrast, dot indicators, and role shell
+          layout.
         </p>
       </div>
 

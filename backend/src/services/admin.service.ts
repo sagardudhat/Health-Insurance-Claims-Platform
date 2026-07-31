@@ -6,7 +6,6 @@ import { AuditLog } from '../models/AuditLog.model';
 import { AppError } from '../errors';
 import { UserStatus } from '../types';
 import { ALLOWED_SEARCH_FIELDS } from '../validators/claim.validators';
-import mongoose from 'mongoose';
 
 export class AdminService {
   private claimRepo: ClaimRepository;
@@ -91,14 +90,17 @@ export class AdminService {
         toStatus: 'SUBMITTED',
       });
       if (initialAudit) {
-        const duration = new Date(decision.timestamp).getTime() - new Date(initialAudit.timestamp).getTime();
+        const duration =
+          new Date(decision.timestamp).getTime() - new Date(initialAudit.timestamp).getTime();
         totalDurationMs += Math.max(0, duration);
         decisionCount++;
       }
     }
 
     const avgProcessingTimeHours =
-      decisionCount > 0 ? Number((totalDurationMs / (1000 * 60 * 60 * decisionCount)).toFixed(1)) : 0;
+      decisionCount > 0
+        ? Number((totalDurationMs / (1000 * 60 * 60 * decisionCount)).toFixed(1))
+        : 0;
 
     // 4. Count Flagged Claims
     const flaggedClaimsCount = await Claim.countDocuments({
@@ -210,10 +212,18 @@ export class AdminService {
     search?: string;
     searchField?: string;
   }) {
-    const query: Record<string, any> = {};
+    const query: Record<string, unknown> = {};
 
     // SECURITY: Validate status against known enum — prevents arbitrary string injection
-    const VALID_STATUSES = ['SUBMITTED','UNDER_REVIEW','APPROVED','PARTIALLY_APPROVED','REJECTED','NEEDS_REVISION','PAID'];
+    const VALID_STATUSES = [
+      'SUBMITTED',
+      'UNDER_REVIEW',
+      'APPROVED',
+      'PARTIALLY_APPROVED',
+      'REJECTED',
+      'NEEDS_REVISION',
+      'PAID',
+    ];
     if (filters.status && filters.status !== 'ALL' && VALID_STATUSES.includes(filters.status)) {
       query.status = filters.status;
     }
@@ -230,9 +240,11 @@ export class AdminService {
     const limit = Number(filters.limit) || 10;
 
     // SECURITY: Whitelist searchField before passing to repository
-    const safeSearchField = filters.searchField && (ALLOWED_SEARCH_FIELDS as readonly string[]).includes(filters.searchField)
-      ? filters.searchField
-      : 'all';
+    const safeSearchField =
+      filters.searchField &&
+      (ALLOWED_SEARCH_FIELDS as readonly string[]).includes(filters.searchField)
+        ? filters.searchField
+        : 'all';
 
     return this.claimRepo.findPaginated(query, page, limit, filters.search, safeSearchField);
   }

@@ -69,10 +69,10 @@ export class AuthService {
     }
 
     const refreshSecret = process.env.JWT_REFRESH_SECRET || 'supersecret_refresh_claims_platform';
-    
+
     try {
       const decoded = jwt.verify(refreshToken, refreshSecret) as { id: string };
-      
+
       const user = await this.userRepo.findById(decoded.id);
       if (!user) {
         throw new AppError('User not found', 404);

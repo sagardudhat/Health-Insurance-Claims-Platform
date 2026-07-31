@@ -40,7 +40,9 @@ export class ReviewerController {
     if (typeof items === 'string') {
       try {
         items = JSON.parse(items);
-      } catch (err) {}
+      } catch (err) {
+        // ignore invalid JSON parsing
+      }
     }
     const files = (req.files as Express.Multer.File[]) || [];
 

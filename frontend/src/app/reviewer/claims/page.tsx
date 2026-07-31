@@ -8,14 +8,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/skeleton';
-import {
-  Search,
-  Filter,
-  AlertTriangle,
-  ArrowRight,
-  FileText,
-  List,
-} from 'lucide-react';
+import { Search, Filter, AlertTriangle, ArrowRight, FileText, List } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { CLAIM_STATUSES } from '../../../config/constants';
@@ -102,7 +95,8 @@ export default function ReviewerAllClaimsPage() {
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">All Claims</h1>
         </div>
         <p className="text-sm text-[var(--text-secondary)]">
-          Full view of all health insurance claims across all statuses. Click any claim to review it.
+          Full view of all health insurance claims across all statuses. Click any claim to review
+          it.
         </p>
       </div>
 
@@ -120,7 +114,9 @@ export default function ReviewerAllClaimsPage() {
             className="py-1.5 px-3 text-xs rounded-lg border border-[var(--border)] bg-white font-medium text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--brand-500)]"
           >
             {STATUS_FILTERS.map((s) => (
-              <option key={s.id} value={s.id}>{s.label}</option>
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
             ))}
           </select>
         </div>
@@ -133,7 +129,9 @@ export default function ReviewerAllClaimsPage() {
             className="py-1.5 px-3 text-xs rounded-lg border border-[var(--border)] bg-white font-medium text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--brand-500)]"
           >
             {CLAIM_SEARCH_FIELDS.map((f) => (
-              <option key={f.id} value={f.id}>{f.label}</option>
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
             ))}
           </select>
 
@@ -148,7 +146,9 @@ export default function ReviewerAllClaimsPage() {
             />
           </div>
 
-          <Button type="submit" size="sm" variant="outline" className="text-xs">Search</Button>
+          <Button type="submit" size="sm" variant="outline" className="text-xs">
+            Search
+          </Button>
 
           {searchParam && (
             <Button
@@ -176,7 +176,9 @@ export default function ReviewerAllClaimsPage() {
                 : 'bg-white text-[var(--text-secondary)] border-[var(--border)] hover:bg-gray-50'
             }`}
           >
-            <AlertTriangle className={`w-4 h-4 ${flaggedOnlyParam ? 'text-red-600' : 'text-gray-400'}`} />
+            <AlertTriangle
+              className={`w-4 h-4 ${flaggedOnlyParam ? 'text-red-600' : 'text-gray-400'}`}
+            />
             <span>Flagged Only</span>
           </button>
         </form>
@@ -197,7 +199,9 @@ export default function ReviewerAllClaimsPage() {
           <div className="p-12 text-center space-y-2 flex-1 flex flex-col items-center justify-center">
             <FileText className="w-10 h-10 text-gray-300 mx-auto" />
             <h3 className="text-sm font-semibold text-[var(--text-primary)]">No claims found</h3>
-            <p className="text-xs text-[var(--text-muted)]">No claims match the selected filters.</p>
+            <p className="text-xs text-[var(--text-muted)]">
+              No claims match the selected filters.
+            </p>
           </div>
         ) : (
           <div className="flex-1 flex flex-col min-h-0">
@@ -228,8 +232,12 @@ export default function ReviewerAllClaimsPage() {
                         {claim.patient.policyNumber}
                       </td>
                       <td className="py-3.5 px-4 text-xs">
-                        <div className="font-medium text-[var(--text-primary)]">{claim.procedure.name}</div>
-                        <div className="text-[10px] font-mono text-[var(--text-muted)]">{claim.procedure.code}</div>
+                        <div className="font-medium text-[var(--text-primary)]">
+                          {claim.procedure.name}
+                        </div>
+                        <div className="text-[10px] font-mono text-[var(--text-muted)]">
+                          {claim.procedure.code}
+                        </div>
                       </td>
                       <td className="py-3.5 px-4 text-xs text-[var(--text-secondary)] whitespace-nowrap">
                         {format(new Date(claim.procedure.dateOfService), 'MMM dd, yyyy')}

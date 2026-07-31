@@ -5,7 +5,7 @@ import { AppError } from '../errors';
 import { ClaimStatus, UserRole } from '../types';
 import { ALLOWED_SEARCH_FIELDS } from '../validators/claim.validators';
 import fs from 'fs';
-import path from 'path';
+import mongoose from 'mongoose';
 
 // Allowed State Machine Transitions Map
 export const ALLOWED_TRANSITIONS: Record<ClaimStatus, ClaimStatus[]> = {
@@ -15,7 +15,7 @@ export const ALLOWED_TRANSITIONS: Record<ClaimStatus, ClaimStatus[]> = {
   APPROVED: ['PAID'],
   PARTIALLY_APPROVED: ['PAID'],
   REJECTED: [], // Terminal state
-  PAID: [],     // Terminal state
+  PAID: [], // Terminal state
 };
 
 export class ClaimService {
@@ -35,14 +35,15 @@ export class ClaimService {
    * the server disk (e.g. /var/app/uploads/claims/doc-123.pdf) — exposing
    * this leaks the server directory structure to any API consumer.
    */
-  private sanitizeDocuments(documents: any[]): any[] {
-    return documents.map((doc) => {
-      const { path: _discarded, ...safe } = typeof doc.toObject === 'function' ? doc.toObject() : doc;
+  private sanitizeDocuments(documents: unknown[]): Record<string, unknown>[] {
+    return documents.map((doc: any) => {
+      const safe = typeof doc.toObject === 'function' ? doc.toObject() : { ...doc };
+      delete safe.path;
       return safe;
     });
   }
 
-  private sanitizeClaimForResponse(claim: any): any {
+  private sanitizeClaimForResponse(claim: any): Record<string, unknown> {
     const raw = typeof claim.toObject === 'function' ? claim.toObject() : { ...claim };
     if (raw.documents) {
       raw.documents = this.sanitizeDocuments(raw.documents);
@@ -57,9 +58,7 @@ export class ClaimService {
    */
   private sanitizeSearchField(searchField?: string): string | undefined {
     if (!searchField) return undefined;
-    return (ALLOWED_SEARCH_FIELDS as readonly string[]).includes(searchField)
-      ? searchField
-      : 'all';
+    return (ALLOWED_SEARCH_FIELDS as readonly string[]).includes(searchField) ? searchField : 'all';
   }
 
   async createClaim(
@@ -101,7 +100,7 @@ export class ClaimService {
       totalClaimed,
       documents,
       status: 'SUBMITTED',
-      submittedBy: userId as any,
+      submittedBy: userId as unknown as mongoose.Types.ObjectId,
       coveredAmount: 0,
       patientResponsibility: totalClaimed,
       flagged: false,
@@ -129,10 +128,18 @@ export class ClaimService {
     searchField?: string,
     status?: string
   ) {
-    const query: Record<string, any> = { submittedBy: userId };
-    
+    const query: Record<string, unknown> = { submittedBy: userId };
+
     // Validate status against known enum
-    const VALID_STATUSES = ['SUBMITTED','UNDER_REVIEW','APPROVED','PARTIALLY_APPROVED','REJECTED','NEEDS_REVISION','PAID'];
+    const VALID_STATUSES = [
+      'SUBMITTED',
+      'UNDER_REVIEW',
+      'APPROVED',
+      'PARTIALLY_APPROVED',
+      'REJECTED',
+      'NEEDS_REVISION',
+      'PAID',
+    ];
     if (status && status !== 'ALL' && VALID_STATUSES.includes(status)) {
       query.status = status;
     }
@@ -148,20 +155,26 @@ export class ClaimService {
 
   async getProviderStats(userId: string) {
     const claims = await this.claimRepo.findBySubmittedUser(userId);
-    
+
     const totalCount = claims.length;
-    const pendingCount = claims.filter(c => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW').length;
-    const approvedCount = claims.filter(c => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED' || c.status === 'PAID').length;
-    
+    const pendingCount = claims.filter(
+      (c) => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW'
+    ).length;
+    const approvedCount = claims.filter(
+      (c) => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED' || c.status === 'PAID'
+    ).length;
+
     const totalApprovedPayout = claims
-      .filter(c => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED' || c.status === 'PAID')
+      .filter(
+        (c) => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED' || c.status === 'PAID'
+      )
       .reduce((sum, c) => sum + (c.coveredAmount || 0), 0);
 
     return {
       totalCount,
       pendingCount,
       approvedCount,
-      totalApprovedPayout
+      totalApprovedPayout,
     };
   }
 
@@ -242,28 +255,28 @@ export class ClaimService {
 
       // Update line items denied status
       const safeDeniedIds = (deniedItemIds || []).map((id) => id.toString());
-      updatedItems = claim.items.map((item: any) => {
-        const raw = typeof item.toObject === 'function' ? item.toObject() : item;
+      updatedItems = claim.items.map((item: unknown) => {
+        const raw = typeof (item as any).toObject === 'function' ? (item as any).toObject() : item;
         const itemId = raw._id ? raw._id.toString() : '';
         return {
           ...raw,
           isDenied: safeDeniedIds.includes(itemId),
         };
-      }) as any;
+      });
     } else if (toStatus === 'REJECTED') {
       coveredAmount = 0;
       patientResponsibility = claim.totalClaimed;
-      updatedItems = claim.items.map((item: any) => {
-        const raw = typeof item.toObject === 'function' ? item.toObject() : item;
+      updatedItems = claim.items.map((item: unknown) => {
+        const raw = typeof (item as any).toObject === 'function' ? (item as any).toObject() : item;
         return {
           ...raw,
           isDenied: true,
         };
-      }) as any;
+      });
     }
 
     // 4. Update Claim in Database
-    const updatedClaim = await this.claimRepo.updateStatus(claimId, {
+    await this.claimRepo.updateStatus(claimId, {
       status: toStatus,
       coveredAmount,
       patientResponsibility,
@@ -322,7 +335,7 @@ export class ClaimService {
       items = data.items.map((item) => ({
         ...item,
         isDenied: false,
-      })) as any;
+      }));
       totalClaimed = items.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);
     }
 
@@ -336,7 +349,7 @@ export class ClaimService {
         size: file.size,
         uploadedAt: new Date(),
       }));
-      documents = [...documents, ...newDocs] as any;
+      documents = [...documents, ...newDocs];
     }
 
     // Update claim and transition back to UNDER_REVIEW
@@ -349,7 +362,9 @@ export class ClaimService {
       procedure: {
         name: data.procedureName || claim.procedure.name,
         code: data.procedureCode ? data.procedureCode.toUpperCase().trim() : claim.procedure.code,
-        dateOfService: data.dateOfService ? new Date(data.dateOfService) : claim.procedure.dateOfService,
+        dateOfService: data.dateOfService
+          ? new Date(data.dateOfService)
+          : claim.procedure.dateOfService,
       },
       items,
       totalClaimed,
@@ -408,13 +423,15 @@ export class ClaimService {
         toStatus: 'SUBMITTED',
       });
       if (initialAudit) {
-        const duration = new Date(decision.timestamp).getTime() - new Date(initialAudit.timestamp).getTime();
+        const duration =
+          new Date(decision.timestamp).getTime() - new Date(initialAudit.timestamp).getTime();
         totalDurationMs += Math.max(0, duration);
         count++;
       }
     }
 
-    const avgProcessingTimeHours = count > 0 ? Number((totalDurationMs / (1000 * 60 * 60 * count)).toFixed(1)) : 0;
+    const avgProcessingTimeHours =
+      count > 0 ? Number((totalDurationMs / (1000 * 60 * 60 * count)).toFixed(1)) : 0;
 
     return {
       pendingQueueCount,
