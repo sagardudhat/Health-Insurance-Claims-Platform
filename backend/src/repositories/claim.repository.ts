@@ -93,6 +93,7 @@ export class ClaimRepository {
       status: ClaimStatus;
       coveredAmount?: number;
       patientResponsibility?: number;
+      deductibleApplied?: number;
       reviewerNotes?: string;
       items?: unknown[];
       flagged?: boolean;
@@ -123,7 +124,7 @@ export class ClaimRepository {
         { 'procedure.dateOfService': { $gte: startOfYear, $lte: endOfYear } },
         { createdAt: { $gte: startOfYear, $lte: endOfYear } },
       ],
-    }).sort({ createdAt: 1 });
+    }).sort({ updatedAt: 1 });
   }
 
   async findByProcedureCode(code: string): Promise<IClaimDocument[]> {

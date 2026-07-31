@@ -86,6 +86,20 @@ export const ClaimDetailCards: React.FC<ClaimDetailCardsProps> = ({ claim, token
               0
             );
 
+            const deductibleApplied =
+              claim.deductibleApplied !== undefined
+                ? claim.deductibleApplied
+                : Math.min(
+                    500,
+                    Math.max(
+                      0,
+                      Math.min(
+                        approvedTotal,
+                        approvedTotal - (claim.coveredAmount > 0 ? claim.coveredAmount / 0.8 : 0)
+                      )
+                    )
+                  );
+
             return (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -104,7 +118,7 @@ export const ClaimDetailCards: React.FC<ClaimDetailCardsProps> = ({ claim, token
 
                   <div
                     className={`p-3.5 rounded-lg border ${
-                      claim.coveredAmount === 0 && approvedTotal > 0
+                      deductibleApplied > 0
                         ? 'bg-amber-50 border-amber-300 text-amber-900'
                         : 'bg-blue-50 border-blue-200 text-blue-900'
                     }`}
@@ -113,9 +127,13 @@ export const ClaimDetailCards: React.FC<ClaimDetailCardsProps> = ({ claim, token
                       <p className="text-[10px] font-semibold uppercase tracking-wider">
                         Annual Deductible ($500)
                       </p>
-                      {claim.coveredAmount === 0 && approvedTotal > 0 ? (
+                      {deductibleApplied === approvedTotal && approvedTotal > 0 ? (
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 uppercase">
-                          1st Claim (Ticket Absorbed)
+                          Deductible Absorbed
+                        </span>
+                      ) : deductibleApplied > 0 ? (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 uppercase">
+                          Deductible Applied
                         </span>
                       ) : (
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-900 uppercase">
@@ -124,14 +142,14 @@ export const ClaimDetailCards: React.FC<ClaimDetailCardsProps> = ({ claim, token
                       )}
                     </div>
                     <p className="text-xl font-bold tabular-nums mt-1">
-                      {claim.coveredAmount === 0 && approvedTotal > 0
-                        ? `$${approvedTotal.toFixed(2)} Absorbed`
+                      {deductibleApplied > 0
+                        ? `$${deductibleApplied.toFixed(2)} Applied`
                         : '$0.00 Applied'}
                     </p>
                     <p className="text-[10px] opacity-90 mt-0.5 font-medium">
-                      {claim.coveredAmount === 0 && approvedTotal > 0
-                        ? 'Used toward $500 yearly ticket'
-                        : 'Yearly $500 ticket already 100% paid'}
+                      {deductibleApplied > 0
+                        ? `Applied toward $500 yearly deductible`
+                        : 'Yearly $500 deductible already satisfied'}
                     </p>
                   </div>
 

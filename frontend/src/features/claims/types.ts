@@ -58,6 +58,7 @@ export interface Claim {
   totalClaimed: number;
   coveredAmount: number;
   patientResponsibility: number;
+  deductibleApplied?: number;
   status: ClaimStatus;
   flagged?: boolean;
   flagReason?: string;

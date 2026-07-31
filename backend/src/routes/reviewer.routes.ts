@@ -45,6 +45,12 @@ router.patch(
   reviewerController.updateStatus
 );
 
+router.post(
+  '/claims/:id/preview-coverage',
+  authorize('reviewer', 'admin'),
+  reviewerController.previewCoverage
+);
+
 // ── Provider Resubmit ─────────────────────────────────────────────────────────
 // SECURITY: Only 'provider' role can access this endpoint — not reviewer or admin
 router.patch(

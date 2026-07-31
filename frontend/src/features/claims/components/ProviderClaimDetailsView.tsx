@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useClaimDetails } from '@/features/claims/hooks';
 import { useUnflagClaim } from '@/features/admin/hooks';
 import { useUpdateClaimStatus } from '@/features/review/hooks';
@@ -29,6 +29,7 @@ import { EobPdfModal } from './claim-details/EobPdfModal';
 import { USER_ROLES, CLAIM_STATUSES } from '@/config/constants';
 
 export const ProviderClaimDetailsView = () => {
+  const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
   const claimId = params.id as string;
@@ -57,11 +58,30 @@ export const ProviderClaimDetailsView = () => {
     userRole === USER_ROLES.PROVIDER ||
     (!pathname.startsWith('/admin') && !pathname.startsWith('/reviewer'));
 
-  const backLink = pathname.startsWith('/admin')
-    ? '/admin/claims'
-    : pathname.startsWith('/reviewer')
-      ? '/reviewer/queue'
-      : '/provider/claims';
+  // Smart fallback link if direct link / no history
+  const backLink = (() => {
+    if (typeof window !== 'undefined' && document.referrer) {
+      if (document.referrer.includes('/reviewer/claims')) return '/reviewer/claims';
+      if (document.referrer.includes('/reviewer/dashboard')) return '/reviewer/dashboard';
+      if (document.referrer.includes('/reviewer/queue')) return '/reviewer/queue';
+      if (document.referrer.includes('/admin/claims')) return '/admin/claims';
+      if (document.referrer.includes('/admin/dashboard')) return '/admin/dashboard';
+      if (document.referrer.includes('/provider/claims')) return '/provider/claims';
+      if (document.referrer.includes('/provider/dashboard')) return '/provider/dashboard';
+    }
+    if (pathname.startsWith('/admin')) return '/admin/claims';
+    if (pathname.startsWith('/reviewer')) return '/reviewer/claims';
+    return '/provider/claims';
+  })();
+
+  const handleGoBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(backLink);
+    }
+  };
 
   const [isUnflagConfirmOpen, setIsUnflagConfirmOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -86,11 +106,12 @@ export const ProviderClaimDetailsView = () => {
         <p className="text-xs text-[var(--text-muted)]">
           You don&apos;t have access to this claim or it does not exist.
         </p>
-        <Link href="/provider/dashboard">
-          <Button variant="outline" size="sm">
-            Back to Dashboard
-          </Button>
-        </Link>
+        <button
+          onClick={handleGoBack}
+          className="inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:bg-gray-50 transition-colors cursor-pointer"
+        >
+          Go Back
+        </button>
       </div>
     );
   }
@@ -146,12 +167,13 @@ export const ProviderClaimDetailsView = () => {
       {/* Header Banner */}
       <div className="shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link
-            href={backLink}
-            className="p-1.5 rounded-lg border border-[var(--border)] bg-white text-[var(--text-secondary)] hover:bg-gray-50 transition-colors"
+          <button
+            onClick={handleGoBack}
+            className="p-1.5 rounded-lg border border-[var(--border)] bg-white text-[var(--text-secondary)] hover:bg-gray-50 transition-colors cursor-pointer"
+            title="Go Back"
           >
             <ArrowLeft className="w-4 h-4" />
-          </Link>
+          </button>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold text-[var(--text-primary)] font-mono">

@@ -240,6 +240,14 @@ export class ClaimService {
     };
   }
 
+  async previewCoverage(claimId: string, deniedItemIds: string[] = []) {
+    const claim = await this.claimRepo.findById(claimId);
+    if (!claim) {
+      throw new AppError('Claim not found', 404);
+    }
+    return this.coverageServ.calculateCoverageForClaim(claim, deniedItemIds);
+  }
+
   async transitionStatus(
     claimId: string,
     toStatus: ClaimStatus,
@@ -273,6 +281,7 @@ export class ClaimService {
 
     let coveredAmount = claim.coveredAmount;
     let patientResponsibility = claim.patientResponsibility;
+    let deductibleApplied = claim.deductibleApplied || 0;
     let updatedItems = claim.items;
 
     // 3. Handle status-specific logic & Coverage Calculations
@@ -280,6 +289,7 @@ export class ClaimService {
       const calcResult = await this.coverageServ.calculateCoverageForClaim(claim, deniedItemIds);
       coveredAmount = Number(calcResult.coveredAmount) || 0;
       patientResponsibility = Number(calcResult.patientResponsibility) || 0;
+      deductibleApplied = Number(calcResult.deductibleApplied) || 0;
 
       // Update line items denied status
       const safeDeniedIds = (deniedItemIds || []).map((id) => id.toString());
@@ -293,6 +303,7 @@ export class ClaimService {
     } else if (toStatus === 'REJECTED') {
       coveredAmount = 0;
       patientResponsibility = claim.totalClaimed;
+      deductibleApplied = 0;
       updatedItems = claim.items.map((item) => ({
         ...item,
         isDenied: true,
@@ -304,6 +315,7 @@ export class ClaimService {
       status: toStatus,
       coveredAmount,
       patientResponsibility,
+      deductibleApplied,
       reviewerNotes: note || claim.reviewerNotes,
       items: updatedItems,
     });
@@ -444,6 +456,42 @@ export class ClaimService {
       performedBy: userId,
       role: 'provider',
       note: 'Provider submitted revised claim details and documents',
+    });
+
+    // 1. Dispatch Email Notification to Reviewers/Admins
+    await emailService
+      .sendClaimStatusEmail({
+        to: (claim.submittedBy as any)?.email || 'provider@claimcare.health',
+        subject: `Revised Claim #${claim._id.toString().slice(-6).toUpperCase()} Resubmitted for Review`,
+        template: 'STATUS_UPDATED',
+        data: {
+          claimId,
+          patientName: claim.patient.name,
+          recipientName: claim.patient.name,
+          status: 'UNDER_REVIEW',
+          reviewerNotes: 'Provider submitted revised claim details and documents for review.',
+        },
+      })
+      .catch((err) => console.error('Failed to send resubmit email notification:', err));
+
+    // 2. Emit real-time WebSocket events so reviewers receive notifications and their queue refreshes
+    emitRealtimeNotification('claim_status_updated', {
+      claimId,
+      patientName: claim.patient.name,
+      patientPolicyNumber: claim.patient.policyNumber,
+      fromStatus: 'NEEDS_REVISION',
+      toStatus: 'UNDER_REVIEW',
+      coveredAmount: 0,
+      patientResponsibility: totalClaimed,
+      reviewerNotes: 'Provider submitted revised claim details and documents for review.',
+    });
+
+    emitRealtimeNotification('claim_submitted', {
+      claimId,
+      patientName: claim.patient.name,
+      totalClaimed,
+      status: 'UNDER_REVIEW',
+      isResubmission: true,
     });
 
     return this.getClaimById(claimId, userId, 'provider');

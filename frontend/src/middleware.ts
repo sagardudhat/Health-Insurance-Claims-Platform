@@ -46,11 +46,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(ROLE_DASHBOARDS[USER_ROLES.REVIEWER], request.url));
     }
 
-    if (
-      userRole === USER_ROLES.ADMIN &&
-      !isClaimDetailsPath &&
-      (pathname.startsWith('/provider') || pathname.startsWith('/reviewer'))
-    ) {
+    if (userRole === USER_ROLES.ADMIN && !isClaimDetailsPath && pathname.startsWith('/provider')) {
       return NextResponse.redirect(new URL(ROLE_DASHBOARDS[USER_ROLES.ADMIN], request.url));
     }
   }

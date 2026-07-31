@@ -38,6 +38,7 @@ export interface IClaimDocument extends Document {
   submittedBy: mongoose.Types.ObjectId;
   coveredAmount: number;
   patientResponsibility: number;
+  deductibleApplied?: number;
   flagged: boolean;
   flagReason?: string;
   reviewerNotes?: string;
@@ -105,6 +106,11 @@ const claimSchema = new Schema<IClaimDocument>(
       default: 0,
       min: 0,
     },
+    deductibleApplied: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     flagged: {
       type: Boolean,
       default: false,
@@ -121,6 +127,7 @@ const claimSchema = new Schema<IClaimDocument>(
 // Indexes for performance on queue queries and audit searches
 claimSchema.index({ createdAt: -1 });
 claimSchema.index({ 'patient.policyNumber': 1, createdAt: -1 });
+claimSchema.index({ 'patient.policyNumber': 1, status: 1, updatedAt: 1 });
 claimSchema.index({ 'procedure.code': 1 });
 
 export const Claim = mongoose.model<IClaimDocument>('Claim', claimSchema);

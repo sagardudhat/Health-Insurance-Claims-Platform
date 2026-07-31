@@ -43,7 +43,12 @@ export const NotificationCenter: React.FC = () => {
         let title = `Claim Status Updated (${data.toStatus})`;
         let message = `Claim ${claimRef} for ${data.patientName || 'Patient'} moved to ${data.toStatus}.${data.reviewerNotes ? ` Remarks: "${data.reviewerNotes}"` : ''}`;
 
-        if (role === 'provider') {
+        if (data.fromStatus === 'NEEDS_REVISION' && data.toStatus === 'UNDER_REVIEW') {
+          if (role !== 'provider') {
+            title = 'Revised Claim Resubmitted for Review';
+            message = `Provider has resubmitted revised claim ${claimRef} for ${data.patientName || 'Patient'} with updated details/documents.`;
+          }
+        } else if (role === 'provider') {
           title = `Your Claim ${claimRef} Status Updated`;
           message = `Your claim status for ${data.patientName || 'Patient'} is now ${data.toStatus}.${data.reviewerNotes ? ` Remarks: "${data.reviewerNotes}"` : ''}`;
         }

@@ -18,6 +18,13 @@ export class ReviewerController {
     res.status(200).json(buildSuccess(stats, 'Reviewer dashboard stats fetched'));
   });
 
+  previewCoverage = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { deniedItemIds } = req.body || {};
+    const result = await claimService.previewCoverage(id, deniedItemIds || []);
+    res.status(200).json(buildSuccess(result, 'Coverage calculation preview fetched'));
+  });
+
   updateStatus = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { toStatus, note, deniedItemIds } = req.body;

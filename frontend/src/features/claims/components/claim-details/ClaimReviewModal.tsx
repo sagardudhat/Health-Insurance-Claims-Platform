@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ClipboardCheck, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Claim } from '@/features/claims/types';
+import { reviewApi } from '@/features/review/api';
 
 interface ClaimReviewModalProps {
   claim: Claim;
@@ -26,19 +27,48 @@ export const ClaimReviewModal: React.FC<ClaimReviewModalProps> = ({
   const [reviewNote, setReviewNote] = useState<string>('');
   const [deniedItemIds, setDeniedItemIds] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [previewData, setPreviewData] = useState<{
+    approvedItemsTotal: number;
+    deductibleApplied: number;
+    coveredAmount: number;
+    patientResponsibility: number;
+  } | null>(null);
 
   const itemCount = claim.items?.length || 0;
   const isPartialDisabled = itemCount <= 1;
 
   // Reset form when modal opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen) {
       setReviewDecision('APPROVED');
       setReviewNote('');
       setDeniedItemIds([]);
       setValidationError(null);
+      setPreviewData(null);
     }
   }, [isOpen]);
+
+  // Fetch live coverage preview from backend Policy Engine whenever decision or denied items change
+  useEffect(() => {
+    if (isOpen && (reviewDecision === 'APPROVED' || reviewDecision === 'PARTIALLY_APPROVED')) {
+      const activeDenied = reviewDecision === 'PARTIALLY_APPROVED' ? deniedItemIds : [];
+      reviewApi
+        .previewCoverage(claim._id, activeDenied)
+        .then((res) => {
+          setPreviewData({
+            approvedItemsTotal: res.approvedItemsTotal,
+            deductibleApplied: res.deductibleApplied,
+            coveredAmount: res.coveredAmount,
+            patientResponsibility: res.patientResponsibility,
+          });
+        })
+        .catch(() => {
+          setPreviewData(null);
+        });
+    } else {
+      setPreviewData(null);
+    }
+  }, [isOpen, claim._id, reviewDecision, deniedItemIds]);
 
   if (!isOpen) return null;
 
@@ -280,31 +310,46 @@ export const ClaimReviewModal: React.FC<ClaimReviewModalProps> = ({
                   return sum;
                 return sum + item.quantity * item.unitCost;
               }, 0);
-              const deductible = Math.min(500, activeSum);
-              const estCovered = Math.max(0, activeSum - deductible) * 0.8;
-              const estPatient = claim.totalClaimed - estCovered;
+
+              const estCovered = previewData
+                ? previewData.coveredAmount
+                : Math.max(0, activeSum - 500) * 0.8;
+              const estPatient = previewData
+                ? previewData.patientResponsibility
+                : claim.totalClaimed - estCovered;
+              const deductibleApplied = previewData ? previewData.deductibleApplied : 0;
+
               return (
                 <div className="bg-[var(--brand-50)] rounded-xl border border-[var(--brand-500)]/25 p-3">
-                  <p className="text-[10px] font-semibold text-[var(--brand-700)] uppercase tracking-wider mb-2">
-                    Coverage Preview · $500 Ded. + 80% Co-Ins.
-                  </p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-semibold text-[var(--brand-700)] uppercase tracking-wider">
+                      Coverage Preview · 80% Co-Ins.
+                    </p>
+                    {previewData && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
+                        {deductibleApplied > 0
+                          ? `$${deductibleApplied.toFixed(2)} Ded. Applied`
+                          : 'Ded. Satisfied ($0 Applied)'}
+                      </span>
+                    )}
+                  </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="bg-white border border-[var(--border)] rounded-lg p-2">
-                      <div className="text-[10px] text-[var(--text-muted)]">Claimed</div>
+                      <div className="text-[10px] text-[var(--text-muted)]">Approved Charges</div>
                       <div className="text-sm font-bold text-[var(--text-primary)]">
-                        ${claim.totalClaimed.toFixed(2)}
+                        ${(previewData ? previewData.approvedItemsTotal : activeSum).toFixed(2)}
                       </div>
                     </div>
                     <div className="bg-[var(--status-approved-bg)] border border-[var(--status-approved)]/30 rounded-lg p-2">
                       <div className="text-[10px] text-[var(--status-approved)] font-semibold">
-                        Insurance
+                        Insurance Payout
                       </div>
                       <div className="text-sm font-bold text-[var(--status-approved)]">
                         ${estCovered.toFixed(2)}
                       </div>
                     </div>
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
-                      <div className="text-[10px] text-amber-700 font-semibold">Patient</div>
+                      <div className="text-[10px] text-amber-700 font-semibold">Patient Owes</div>
                       <div className="text-sm font-bold text-amber-700">
                         ${estPatient.toFixed(2)}
                       </div>

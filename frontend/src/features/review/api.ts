@@ -59,6 +59,34 @@ export const reviewApi = {
     return response.data.data;
   },
 
+  previewCoverage: async (
+    claimId: string,
+    deniedItemIds: string[] = []
+  ): Promise<{
+    totalClaimed: number;
+    approvedItemsTotal: number;
+    deductibleApplied: number;
+    afterDeductible: number;
+    rawCovered: number;
+    coveredAmount: number;
+    patientResponsibility: number;
+    deductibleMetThisYear: number;
+  }> => {
+    const response = await apiClient.post<
+      ApiResponse<{
+        totalClaimed: number;
+        approvedItemsTotal: number;
+        deductibleApplied: number;
+        afterDeductible: number;
+        rawCovered: number;
+        coveredAmount: number;
+        patientResponsibility: number;
+        deductibleMetThisYear: number;
+      }>
+    >(`/reviewer/claims/${claimId}/preview-coverage`, { deniedItemIds });
+    return response.data.data;
+  },
+
   resubmitClaim: async (claimId: string, formData: FormData): Promise<ClaimDetailsResponse> => {
     const response = await apiClient.patch<ApiResponse<ClaimDetailsResponse>>(
       `/reviewer/claims/${claimId}/resubmit`,

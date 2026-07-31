@@ -135,7 +135,35 @@ function runTests() {
     console.error('❌ Test 5 Failed:', err.message);
   }
 
-  console.log(`\n🎉 Test Suite Completed: ${passedCount}/5 tests passed successfully!\n`);
+  // Test 6: Deductible Applied in Approval Order (Whichever claim approved first gets deductible)
+  // Claim A (Submitted first, approved second): evaluated after Claim B met $500 deductible -> $0 deductible applied.
+  // Claim B (Submitted second, approved first): evaluated when deductible met was $0 -> $500 deductible applied.
+  try {
+    const claimAItems = [{ description: 'First Submitted Claim', quantity: 1, unitCost: 1000 }];
+    // Evaluating Claim B (Approved First): prior deductible met = 0
+    const resB = coverageService.calculateCoverage(claimAItems, [], 0, 0, defaultConfig);
+    assert.strictEqual(
+      resB.deductibleApplied,
+      500,
+      'Claim approved first should absorb $500 deductible'
+    );
+
+    // Evaluating Claim A (Approved Second): prior deductible met = 500 (from Claim B)
+    const resA = coverageService.calculateCoverage(claimAItems, [], 500, 400, defaultConfig);
+    assert.strictEqual(
+      resA.deductibleApplied,
+      0,
+      'Claim approved second should have $0 deductible applied'
+    );
+    console.log(
+      '✅ Test 6 Passed: Deductible Applied in Approval Order (Claim approved first absorbs deductible)'
+    );
+    passedCount++;
+  } catch (err: any) {
+    console.error('❌ Test 6 Failed:', err.message);
+  }
+
+  console.log(`\n🎉 Test Suite Completed: ${passedCount}/6 tests passed successfully!\n`);
 }
 
 runTests();

@@ -63,50 +63,61 @@ export const ReviewerQueueTable: React.FC<ReviewerQueueTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--border)]">
-            {queue.map((claim) => (
-              <tr key={claim._id} className="hover:bg-gray-50 transition-colors">
-                <td className="py-3.5 px-4 font-mono text-xs font-semibold text-[var(--brand-700)] text-left">
-                  <div className="flex items-center gap-1.5">
-                    {claim.flagged && (
-                      <span title={claim.flagReason || 'Flagged for Fraud Audit'}>
-                        <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                      </span>
-                    )}
-                    <span>#{claim._id.slice(-6).toUpperCase()}</span>
-                  </div>
-                </td>
-                <td className="py-3.5 px-4 font-semibold text-[var(--text-primary)] text-left">
-                  {claim.patient.name}
-                </td>
-                <td className="py-3.5 px-4 text-xs font-medium text-[var(--text-secondary)] text-left">
-                  {claim.patient.policyNumber}
-                </td>
-                <td className="py-3.5 px-4 text-xs text-left">
-                  <div className="font-medium text-[var(--text-primary)]">
-                    {claim.procedure.name}
-                  </div>
-                  <div className="text-[10px] text-[var(--text-muted)]">{claim.procedure.code}</div>
-                </td>
-                <td className="py-3.5 px-4 text-xs text-[var(--text-secondary)] text-left">
-                  {claim.submittedBy?.name || 'Provider'}
-                </td>
-                <td className="py-3.5 px-4 text-left font-bold text-[var(--text-primary)] tabular-nums">
-                  ${claim.totalClaimed.toFixed(2)}
-                </td>
-                <td className="py-3.5 px-4 text-left">
-                  <StatusBadge status={claim.status} isFlagged={claim.flagged} />
-                </td>
-                <td className="py-3.5 px-4 text-left">
-                  <Link
-                    href={`/reviewer/claims/${claim._id}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[var(--brand-500)] text-white px-3.5 py-1.5 rounded-lg hover:bg-[var(--brand-600)] transition-colors shadow-xs"
-                  >
-                    <span>Review Claim</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {queue.map((claim) => {
+              const claimIdStr = claim._id ? String(claim._id) : '';
+              const claimRef = claimIdStr ? `#${claimIdStr.slice(-6).toUpperCase()}` : '#CLAIM';
+              const patientName = claim.patient?.name || 'Patient';
+              const policyNumber = claim.patient?.policyNumber || 'N/A';
+              const procedureName = claim.procedure?.name || 'Procedure';
+              const procedureCode = claim.procedure?.code || '';
+              const totalClaimed = Number(claim.totalClaimed) || 0;
+
+              return (
+                <tr
+                  key={claimIdStr || Math.random()}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="py-3.5 px-4 font-mono text-xs font-semibold text-[var(--brand-700)] text-left">
+                    <div className="flex items-center gap-1.5">
+                      {claim.flagged && (
+                        <span title={claim.flagReason || 'Flagged for Fraud Audit'}>
+                          <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                        </span>
+                      )}
+                      <span>{claimRef}</span>
+                    </div>
+                  </td>
+                  <td className="py-3.5 px-4 font-semibold text-[var(--text-primary)] text-left">
+                    {patientName}
+                  </td>
+                  <td className="py-3.5 px-4 text-xs font-medium text-[var(--text-secondary)] text-left">
+                    {policyNumber}
+                  </td>
+                  <td className="py-3.5 px-4 text-xs text-left">
+                    <div className="font-medium text-[var(--text-primary)]">{procedureName}</div>
+                    <div className="text-[10px] text-[var(--text-muted)]">{procedureCode}</div>
+                  </td>
+                  <td className="py-3.5 px-4 text-xs text-[var(--text-secondary)] text-left">
+                    {claim.submittedBy?.name || 'Provider'}
+                  </td>
+                  <td className="py-3.5 px-4 text-left font-bold text-[var(--text-primary)] tabular-nums">
+                    ${totalClaimed.toFixed(2)}
+                  </td>
+                  <td className="py-3.5 px-4 text-left">
+                    <StatusBadge status={claim.status} isFlagged={claim.flagged} />
+                  </td>
+                  <td className="py-3.5 px-4 text-left">
+                    <Link
+                      href={`/reviewer/claims/${claimIdStr}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[var(--brand-500)] text-white px-3.5 py-1.5 rounded-lg hover:bg-[var(--brand-600)] transition-colors shadow-xs"
+                    >
+                      <span>Review Claim</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
