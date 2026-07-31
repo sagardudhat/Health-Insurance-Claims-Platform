@@ -137,7 +137,10 @@ Claim payouts and patient responsibilities are calculated dynamically based on p
 - **Annual Deductible**: (Default `$500`) Deductible remaining is applied to approved claim items before coverage kicks in.
 - **Coverage Percentage**: (Default `80%`) Insurance covers 80% of eligible expenses after deductible; patient pays 20% coinsurance.
 - **Annual Coverage Limit**: (Default `$10,000`) Maximum insurance payout per policy year.
-- **Admin Configuration**: Admins can adjust these numbers on the fly via the System Settings dashboard.
+### 📄 Explanation of Benefits (EOB) PDF Generation
+- **Official Insurance Statements**: Allows providers, reviewers, and admins to view and generate printable Explanation of Benefits (EOB) PDF statements.
+- **Statement ID & Watermark**: Includes formal header, Statement ID (`EOB-XXXXXXXX`), Patient/Provider details, financial payout summary cards, itemized service breakdown with denial statuses, and formal legal appeals notices.
+- **Print & Save as PDF**: Fully formatted for standard A4/Letter print rendering via `window.print()`.
 
 ---
 

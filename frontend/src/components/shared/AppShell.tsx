@@ -124,7 +124,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col md:flex-row bg-[var(--bg)]">
       {/* Mobile Top Header Navigation Bar */}
-      <header className="h-14 bg-white border-b border-[var(--border)] flex items-center justify-between px-4 shrink-0 md:hidden z-20">
+      <header className="h-14 bg-white border-b border-[var(--border)] flex items-center justify-between px-4 shrink-0 md:hidden z-20 print:hidden">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -154,14 +154,14 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
       {/* Mobile Slide-Over Drawer Overlay Backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden print:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       {/* Desktop & Mobile Responsive Collapsible Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 bg-[var(--surface)] border-r border-[var(--border)] flex flex-col justify-between transition-all duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 bg-[var(--surface)] border-r border-[var(--border)] flex flex-col justify-between transition-all duration-300 ease-in-out print:hidden ${
           isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0'
         } ${isCollapsed ? 'md:w-20' : 'md:w-60'}`}
       >
@@ -311,11 +311,11 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
       {/* Main Page Layout Wrapper */}
       <main
-        className={`flex-1 h-[calc(100vh-3.5rem)] md:h-screen overflow-hidden flex flex-col transition-all duration-300 ${
-          isCollapsed ? 'md:pl-20' : 'md:pl-60'
+        className={`flex-1 h-[calc(100vh-3.5rem)] md:h-screen overflow-hidden flex flex-col transition-all duration-300 print:p-0 print:m-0 print:h-auto print:block print:overflow-visible ${
+          isCollapsed ? 'md:pl-20' : 'md:pl-60 print:pl-0'
         }`}
       >
-        <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 py-3 sm:py-6 h-full flex flex-col overflow-hidden">
+        <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 py-3 sm:py-6 h-full flex flex-col overflow-hidden print:p-0 print:m-0 print:max-w-none print:block print:overflow-visible">
           {children}
         </div>
       </main>

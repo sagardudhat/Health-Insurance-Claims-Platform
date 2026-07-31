@@ -12,12 +12,20 @@ import { AuditTrailStepper } from '@/components/shared/AuditTrailStepper';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ClaimDetailsSkeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, AlertTriangle, ClipboardCheck, PlayCircle, Banknote } from 'lucide-react';
+import {
+  ArrowLeft,
+  AlertTriangle,
+  ClipboardCheck,
+  PlayCircle,
+  Banknote,
+  FileText,
+} from 'lucide-react';
 
 import { ClaimAlerts } from './claim-details/ClaimAlerts';
 import { ClaimEditForm } from './claim-details/ClaimEditForm';
 import { ClaimDetailCards } from './claim-details/ClaimDetailCards';
 import { ClaimReviewModal } from './claim-details/ClaimReviewModal';
+import { EobPdfModal } from './claim-details/EobPdfModal';
 
 export const ProviderClaimDetailsView = () => {
   const params = useParams();
@@ -53,6 +61,7 @@ export const ProviderClaimDetailsView = () => {
   const [isUnflagConfirmOpen, setIsUnflagConfirmOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isEobModalOpen, setIsEobModalOpen] = useState(false);
 
   const [confirmAction, setConfirmAction] = useState<null | {
     title: string;
@@ -214,6 +223,17 @@ export const ProviderClaimDetailsView = () => {
                 <span>Mark as Paid</span>
               </Button>
             )}
+
+          {/* EOB PDF Statement Download Button */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsEobModalOpen(true)}
+            className="text-xs gap-1.5 border-[var(--brand-300)] text-[var(--brand-700)] hover:bg-[var(--brand-50)]"
+          >
+            <FileText className="w-4 h-4" />
+            <span>View EOB PDF</span>
+          </Button>
         </div>
       </div>
 
@@ -280,6 +300,13 @@ export const ProviderClaimDetailsView = () => {
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
         onReviewSubmit={handleReviewSubmit}
+      />
+      {/* EOB PDF Statement Modal */}
+      <EobPdfModal
+        claim={claim}
+        auditTrail={auditTrail}
+        isOpen={isEobModalOpen}
+        onClose={() => setIsEobModalOpen(false)}
       />
     </div>
   );

@@ -3,7 +3,7 @@ import { coverageService } from '../services/coverage.service';
 
 /**
  * Unit Tests for Health Insurance Claims Coverage Calculation Engine
- * 
+ *
  * Verifies Policy Business Rules:
  * 1. Annual Deductible ($500 default)
  * 2. Coverage Rate (80% default)
@@ -28,9 +28,15 @@ function runTests() {
     const res = coverageService.calculateCoverage(items, [], 0, 0, defaultConfig);
 
     assert.strictEqual(res.coveredAmount, 0, 'Covered amount should be 0 when under deductible');
-    assert.strictEqual(res.patientResponsibility, 300, 'Patient pays full amount when under deductible');
+    assert.strictEqual(
+      res.patientResponsibility,
+      300,
+      'Patient pays full amount when under deductible'
+    );
     assert.strictEqual(res.deductibleApplied, 300, 'Entire $300 applied to deductible');
-    console.log('✅ Test 1 Passed: Deductible Not Yet Met ($300 claim -> $0 covered, $300 patient resp)');
+    console.log(
+      '✅ Test 1 Passed: Deductible Not Yet Met ($300 claim -> $0 covered, $300 patient resp)'
+    );
     passedCount++;
   } catch (err: any) {
     console.error('❌ Test 1 Failed:', err.message);
@@ -47,7 +53,9 @@ function runTests() {
     assert.strictEqual(res.deductibleApplied, 200, 'Deductible applied should be remaining $200');
     assert.strictEqual(res.coveredAmount, 640, 'Covered amount should be 80% of $800 = $640');
     assert.strictEqual(res.patientResponsibility, 360, 'Patient responsibility should be $360');
-    console.log('✅ Test 2 Passed: Deductible Partially Met ($1,000 claim -> $640 covered, $360 patient resp)');
+    console.log(
+      '✅ Test 2 Passed: Deductible Partially Met ($1,000 claim -> $640 covered, $360 patient resp)'
+    );
     passedCount++;
   } catch (err: any) {
     console.error('❌ Test 2 Failed:', err.message);
@@ -63,7 +71,9 @@ function runTests() {
     assert.strictEqual(res.deductibleApplied, 0, 'No deductible applied since met');
     assert.strictEqual(res.coveredAmount, 1600, 'Covered amount should be 80% of $2,000 = $1,600');
     assert.strictEqual(res.patientResponsibility, 400, 'Patient pays 20% coinsurance = $400');
-    console.log('✅ Test 3 Passed: Deductible Already Met ($2,000 claim -> $1,600 covered, $400 patient resp)');
+    console.log(
+      '✅ Test 3 Passed: Deductible Already Met ($2,000 claim -> $1,600 covered, $400 patient resp)'
+    );
     passedCount++;
   } catch (err: any) {
     console.error('❌ Test 3 Failed:', err.message);
@@ -77,9 +87,15 @@ function runTests() {
     const items = [{ description: 'Outpatient Surgery', quantity: 1, unitCost: 2000 }];
     const res = coverageService.calculateCoverage(items, [], 500, 9500, defaultConfig);
 
-    assert.strictEqual(res.coveredAmount, 500, 'Covered amount should be capped at remaining annual limit of $500');
+    assert.strictEqual(
+      res.coveredAmount,
+      500,
+      'Covered amount should be capped at remaining annual limit of $500'
+    );
     assert.strictEqual(res.patientResponsibility, 1500, 'Patient pays remaining $1,500');
-    console.log('✅ Test 4 Passed: Annual Coverage Limit Reached ($2,000 claim -> $500 covered, $1,500 patient resp)');
+    console.log(
+      '✅ Test 4 Passed: Annual Coverage Limit Reached ($2,000 claim -> $500 covered, $1,500 patient resp)'
+    );
     passedCount++;
   } catch (err: any) {
     console.error('❌ Test 4 Failed:', err.message);
@@ -96,10 +112,24 @@ function runTests() {
     ];
     const res = coverageService.calculateCoverage(items, ['item-2'], 500, 0, defaultConfig);
 
-    assert.strictEqual(res.approvedItemsTotal, 800, 'Approved items total should exclude denied item');
-    assert.strictEqual(res.coveredAmount, 640, 'Covered amount should be 80% of $800 approved = $640');
-    assert.strictEqual(res.patientResponsibility, 360, 'Patient pays $160 coinsurance + $200 denied item = $360');
-    console.log('✅ Test 5 Passed: Partially Denied Line Items (1 denied item -> excluded from coverage)');
+    assert.strictEqual(
+      res.approvedItemsTotal,
+      800,
+      'Approved items total should exclude denied item'
+    );
+    assert.strictEqual(
+      res.coveredAmount,
+      640,
+      'Covered amount should be 80% of $800 approved = $640'
+    );
+    assert.strictEqual(
+      res.patientResponsibility,
+      360,
+      'Patient pays $160 coinsurance + $200 denied item = $360'
+    );
+    console.log(
+      '✅ Test 5 Passed: Partially Denied Line Items (1 denied item -> excluded from coverage)'
+    );
     passedCount++;
   } catch (err: any) {
     console.error('❌ Test 5 Failed:', err.message);
