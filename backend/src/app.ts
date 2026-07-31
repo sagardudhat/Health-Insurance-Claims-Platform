@@ -10,6 +10,8 @@ import { claimRoutes } from './routes/claim.routes';
 import { reviewerRoutes } from './routes/reviewer.routes';
 import { adminRoutes } from './routes/admin.routes';
 
+import { serveSwaggerUI, openApiSpec } from './config/swagger';
+
 dotenv.config();
 
 export const app = express();
@@ -21,6 +23,12 @@ app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
+
+// Interactive Swagger / OpenAPI Documentation Routes
+app.get('/api-docs', serveSwaggerUI);
+app.get('/api-docs/json', (req: Request, res: Response) => {
+  res.json(openApiSpec);
+});
 
 // Health Check Endpoint
 app.get('/api/health', (req: Request, res: Response) => {

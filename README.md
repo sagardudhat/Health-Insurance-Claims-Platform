@@ -142,6 +142,11 @@ Claim payouts and patient responsibilities are calculated dynamically based on p
 - **Statement ID & Watermark**: Includes formal header, Statement ID (`EOB-XXXXXXXX`), Patient/Provider details, financial payout summary cards, itemized service breakdown with denial statuses, and formal legal appeals notices.
 - **Print & Save as PDF**: Fully formatted for standard A4/Letter print rendering via `window.print()`.
 
+### 📚 Interactive API Documentation (Swagger / OpenAPI 3.0)
+- **Interactive UI**: Complete RESTful API documentation served directly at `http://localhost:5000/api-docs`.
+- **OpenAPI 3.0 JSON Spec**: Available at `http://localhost:5000/api-docs/json` for importing directly into Postman or Insomnia.
+- **Try-It-Out Endpoint Testing**: Includes request/response schemas, JWT Bearer token authentication header parameters, and full endpoint descriptions.
+
 ---
 
 ## 🏛 Architectural Decisions & Trade-offs
