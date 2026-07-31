@@ -1,53 +1,60 @@
-# Health Insurance Claims Frontend 💻
+# ClaimCare - Frontend Application
 
-A modern, highly-responsive web application for Providers, Reviewers, and Administrators to manage the lifecycle of medical claims.
+The ClaimCare frontend is a modern web application built with Next.js 14 (App Router) and React. It serves as the primary interface for Providers, Reviewers, and Administrators to interact with the ClaimCare platform.
 
-## 🚀 Tech Stack
+## 🏗 Architecture & Feature-Sliced Design
+
+The frontend strictly enforces a separation between routing and UI logic. The `src/app` directory contains ONLY routing files (`page.tsx`), and every single page acts as a thin wrapper that imports a dedicated "View" component from the `src/features` directory.
+
+### Directory Structure
+```text
+src/
+├── app/                  # Next.js App Router (strictly routing wrappers)
+├── components/           # Global Shared UI Components (Button, Input, Skeleton, etc.)
+├── config/               # Global constants (Claim Statuses, etc.)
+├── features/             # Feature-Sliced Design Modules
+│   ├── admin/            # Admin domain (Views, Hooks, API, Components)
+│   ├── auth/             # Auth domain (Login, Register, Session Store)
+│   ├── claims/           # Provider claims domain
+│   └── review/           # Reviewer domain
+├── lib/                  # Utilities (Axios instance, Tailwind merge)
+└── validators/           # Zod validation schemas (shared logic)
+```
+
+## 🛠 Tech Stack
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS (with custom CSS variables for theming)
-- **State Management**: React Query (TanStack Query) for server state, Zustand for client state
-- **Forms**: React Hook Form with Zod validation
-- **Icons**: Lucide React
+- **Styling**: Tailwind CSS & Lucide React Icons
+- **State Management**: Zustand
+- **Server State / Data Fetching**: `@tanstack/react-query` & Axios
+- **Form Handling**: `react-hook-form` & `zod`
+- **Charts**: `recharts`
 
-## 🎨 UI & UX Architecture
+## 🚀 Setup & Installation
 
-The frontend is designed with a premium, robust aesthetic prioritizing workflow efficiency:
-- **Role-Based Workspaces**: Separate `/provider`, `/reviewer`, and `/admin` routes ensures that users only download the code and see the UI necessary for their permissions.
-- **Micro-Animations**: Hover states, active borders, and transition delays make the app feel alive.
-- **Glassmorphism**: Subtle backdrop blurs are used in modals and sticky headers for a modern feel.
-- **Timeline Visualization**: Claims feature an interactive, visual "Audit Trail" vertical stepper that instantly communicates status history.
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-## ⚙️ Environment Variables (`.env.local`)
-
+### 2. Environment Variables
+Create a `.env.local` file in the root of the `frontend` folder:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-## 🛠 Local Development
-
+### 3. Start Development Server
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Run strictly typed linter & formatter
-npm run check:all
-
-# 3. Start development server (Runs on port 3000)
 npm run dev
 ```
+The application will be available at `http://localhost:3000`.
 
-## 📁 Project Structure
-```text
-/src
-├── /app             # Next.js App Router pages (grouped by role: /admin, /provider, /reviewer)
-├── /components      # Reusable UI components
-│   ├── /ui          # Base components (Buttons, Inputs, Modals)
-│   └── /shared      # Shared complex components (StatusBadge, AuditTrailStepper)
-├── /features        # Domain-driven architecture (auth, claims, admin, review)
-│   ├── api.ts       # Axios API bindings
-│   ├── hooks.ts     # React Query hooks
-│   ├── store.ts     # Zustand client stores
-│   └── types.ts     # TypeScript interfaces
-└── /lib             # Core libraries (Axios client setup, utils)
-```
+## 🎨 Design System
+
+ClaimCare relies on a strict design system managed via Tailwind CSS. Core design tokens are defined in `globals.css`. 
+- **Colors**: Vibrant brand colors (`var(--brand-500)`) with clear semantic status badges (Approved, Rejected, Pending).
+- **Typography**: Inter font with clear hierarchical weighting.
+- **Micro-interactions**: Hover effects, loading skeletons, and interactive steppers for audit logs.
+
+## 🔐 Authentication
+Authentication is managed via JWT. The token is stored securely in memory and localStorage (via Zustand's persist middleware). Axios interceptors automatically inject the `Authorization: Bearer <token>` header into every API request and handle global 401 Unauthorized redirects.

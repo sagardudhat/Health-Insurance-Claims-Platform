@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import ClaimDetailsPage from '@/app/provider/claims/[id]/page';
+import { ProviderClaimDetailsView } from '@/features/claims/components/ProviderClaimDetailsView';
 
 export default function AdminClaimDetailsRoute() {
-  return <ClaimDetailsPage />;
+  return <ProviderClaimDetailsView />;
 }
