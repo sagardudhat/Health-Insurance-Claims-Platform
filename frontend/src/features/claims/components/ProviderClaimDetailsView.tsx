@@ -259,7 +259,7 @@ export const ProviderClaimDetailsView = () => {
         </div>
 
         {/* Right Sidebar: Audit Trail */}
-        <div className="w-80 shrink-0 bg-white rounded-xl border border-[var(--border)] shadow-xs flex flex-col min-h-0">
+        <div className="w-96 lg:w-[390px] xl:w-[420px] shrink-0 bg-white rounded-xl border border-[var(--border)] shadow-xs flex flex-col min-h-0">
           <div className="p-4 border-b border-[var(--border)] shrink-0">
             <h3 className="text-sm font-semibold text-[var(--text-primary)]">Claim Lifecycle</h3>
           </div>

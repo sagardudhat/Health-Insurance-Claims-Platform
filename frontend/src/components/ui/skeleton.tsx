@@ -57,41 +57,80 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
 
 export const ClaimDetailsSkeleton: React.FC = () => {
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-6 w-24 rounded-full" />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white p-6 rounded-xl border border-[var(--border)] space-y-4">
-          <Skeleton className="h-4 w-40" />
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
+    <div className="h-full flex flex-col min-h-0 space-y-4 overflow-hidden">
+      {/* Header Banner Skeleton */}
+      <div className="shrink-0 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-8 w-8 rounded-lg" />
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-6 w-36" />
+              <Skeleton className="h-6 w-20 rounded-full" />
+            </div>
+            <Skeleton className="h-3 w-44" />
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-[var(--border)] space-y-4">
-          <Skeleton className="h-4 w-40" />
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-28 rounded-lg" />
+        </div>
+      </div>
+
+      {/* 2-Column Content + Right Sidebar Layout */}
+      <div className="flex-1 flex min-h-0 gap-6">
+        {/* Main Content Area Skeleton */}
+        <div className="flex-1 space-y-6 overflow-y-auto pr-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white p-5 rounded-xl border border-[var(--border)] space-y-3">
+              <Skeleton className="h-4 w-32" />
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            </div>
+            <div className="bg-white p-5 rounded-xl border border-[var(--border)] space-y-3">
+              <Skeleton className="h-4 w-32" />
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-[var(--border)] space-y-4">
+            <Skeleton className="h-4 w-48" />
+            <div className="grid grid-cols-3 gap-4">
+              <Skeleton className="h-16 rounded-lg" />
+              <Skeleton className="h-16 rounded-lg" />
+              <Skeleton className="h-16 rounded-lg" />
+            </div>
+          </div>
+
+          <TableSkeleton rows={3} columns={5} />
+        </div>
+
+        {/* Right Sidebar Skeleton */}
+        <div className="w-96 lg:w-[390px] xl:w-[420px] shrink-0 bg-white rounded-xl border border-[var(--border)] p-4 space-y-4 flex flex-col">
+          <Skeleton className="h-5 w-32" />
+          <div className="space-y-4">
+            <div className="flex gap-3 items-start">
+              <Skeleton className="w-9 h-9 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-12 w-full rounded-lg" />
+              </div>
+            </div>
+            <div className="flex gap-3 items-start">
+              <Skeleton className="w-9 h-9 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-12 w-full rounded-lg" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div className="bg-white p-6 rounded-xl border border-[var(--border)] space-y-4">
-        <Skeleton className="h-5 w-48" />
-        <div className="grid grid-cols-3 gap-4">
-          <Skeleton className="h-20 rounded-lg" />
-          <Skeleton className="h-20 rounded-lg" />
-          <Skeleton className="h-20 rounded-lg" />
-        </div>
-      </div>
-
-      <TableSkeleton rows={3} columns={4} />
     </div>
   );
 };

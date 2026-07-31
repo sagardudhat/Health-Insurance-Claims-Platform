@@ -18,24 +18,23 @@ interface AuditTrailStepperProps {
 
 export const AuditTrailStepper: React.FC<AuditTrailStepperProps> = ({
   auditTrail,
-  currentStatus,
 }) => {
   // Helper to determine the icon and color based on the action/status
   const getStepVisuals = (action: string, status: string) => {
     if (status === 'APPROVED' || status === 'PARTIALLY_APPROVED') {
       return {
         icon: CheckCircle2,
-        color: 'text-[var(--status-approved)]',
-        bg: 'bg-[var(--status-approved-bg)]',
-        border: 'border-[var(--status-approved)]',
+        color: 'text-emerald-600',
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-500',
       };
     }
     if (status === 'REJECTED') {
       return {
         icon: XCircle,
-        color: 'text-[var(--status-rejected)]',
-        bg: 'bg-[var(--status-rejected-bg)]',
-        border: 'border-[var(--status-rejected)]',
+        color: 'text-red-600',
+        bg: 'bg-red-50',
+        border: 'border-red-500',
       };
     }
     if (status === 'NEEDS_REVISION' || action.includes('REVISION')) {
@@ -49,9 +48,9 @@ export const AuditTrailStepper: React.FC<AuditTrailStepperProps> = ({
     if (status === 'PAID') {
       return {
         icon: DollarSign,
-        color: 'text-emerald-600',
-        bg: 'bg-emerald-50',
-        border: 'border-emerald-500',
+        color: 'text-emerald-700',
+        bg: 'bg-emerald-100',
+        border: 'border-emerald-600',
       };
     }
     if (status === 'SUBMITTED' || action.includes('SUBMITTED')) {
@@ -63,7 +62,17 @@ export const AuditTrailStepper: React.FC<AuditTrailStepperProps> = ({
       };
     }
     // Default (e.g. UNDER_REVIEW)
-    return { icon: Clock, color: 'text-gray-500', bg: 'bg-gray-100', border: 'border-gray-300' };
+    return { icon: Clock, color: 'text-gray-600', bg: 'bg-gray-100', border: 'border-gray-300' };
+  };
+
+  // Human-readable title generator
+  const getTitle = (action: string, toStatus: string) => {
+    if (action === 'CLAIM_SUBMITTED') return 'Claim Submitted';
+    if (action === 'STATUS_CHANGED') {
+      const formattedStatus = toStatus ? toStatus.replace(/_/g, ' ') : '';
+      return `Status: ${formattedStatus}`;
+    }
+    return action.replace(/_/g, ' ');
   };
 
   // Sort logs oldest to newest so the timeline flows downward
@@ -73,52 +82,57 @@ export const AuditTrailStepper: React.FC<AuditTrailStepperProps> = ({
   );
 
   return (
-    <div className="relative space-y-6 pl-1 py-1 before:absolute before:inset-0 before:ml-[1.65rem] before:h-full before:w-0.5 before:-translate-x-px before:bg-gradient-to-b before:from-[var(--brand-300)] before:via-gray-200 before:to-transparent">
+    <div className="relative space-y-5 pl-0.5 py-1 before:absolute before:inset-0 before:ml-[1.1rem] before:h-full before:w-0.5 before:-translate-x-px before:bg-gradient-to-b before:from-[var(--brand-400)] before:via-gray-200 before:to-transparent">
       {sortedLogs.map((log, index) => {
         const visuals = getStepVisuals(log.action, log.toStatus);
         const Icon = visuals.icon;
         const isLast = index === sortedLogs.length - 1;
+        const title = getTitle(log.action, log.toStatus);
 
         return (
-          <div key={log._id || index} className="relative flex gap-4 items-start group">
-            {/* Timeline Line (hides last connecting line segment) */}
+          <div key={log._id || index} className="relative flex gap-3 items-start group">
+            {/* Timeline Line hiding connector for last item */}
             {isLast && (
-              <div className="absolute left-[1.4rem] top-8 bottom-0 w-1 bg-white -translate-x-1 z-0" />
+              <div className="absolute left-[0.95rem] top-7 bottom-0 w-1 bg-white -translate-x-1 z-0" />
             )}
 
             {/* Icon Node */}
             <div
-              className={`relative z-10 flex shrink-0 items-center justify-center w-11 h-11 rounded-full border-2 shadow-sm transition-transform duration-300 group-hover:scale-110 ${visuals.bg} ${visuals.border} ${visuals.color}`}
+              className={`relative z-10 flex shrink-0 items-center justify-center w-9 h-9 rounded-full border-2 shadow-xs transition-transform duration-300 group-hover:scale-105 ${visuals.bg} ${visuals.border} ${visuals.color}`}
             >
-              <Icon className="w-5 h-5" />
+              <Icon className="w-4 h-4" />
             </div>
 
             {/* Content Card */}
-            <div className="flex-1 min-w-0 bg-white border border-[var(--border)] rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between mb-1.5 gap-2">
-                <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
-                  {log.action.replace(/_/g, ' ')}
+            <div className="flex-1 min-w-0 bg-white border border-[var(--border)] rounded-xl p-3.5 shadow-2xs hover:shadow-xs transition-shadow">
+              <div className="flex items-start justify-between mb-1.5 gap-2 flex-wrap">
+                <h4 className="text-xs font-bold text-gray-900 leading-snug break-words">
+                  {title}
                 </h4>
-                <time className="text-[11px] font-medium text-[var(--text-muted)] shrink-0 whitespace-nowrap">
+                <time className="text-[10px] font-medium text-[var(--text-muted)] shrink-0 whitespace-nowrap">
                   {format(new Date(log.timestamp || new Date()), 'MMM d, h:mm a')}
                 </time>
               </div>
 
-              <div className="flex items-center gap-2 mb-2">
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-gray-100 text-gray-600">
+              <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200">
                   {log.role}
                 </span>
-                <span className="text-xs text-[var(--text-secondary)] truncate">
-                  {log.performedBy.name || log.performedBy.email || 'System'}
+                <span className="text-xs font-medium text-[var(--text-secondary)] break-words">
+                  {log.performedBy?.name || log.performedBy?.email || 'System'}
                 </span>
               </div>
 
               {log.note && (
                 <div
-                  className={`mt-2 p-2.5 rounded-lg text-xs leading-relaxed ${log.toStatus === 'NEEDS_REVISION' ? 'bg-amber-50/50 text-amber-800 border border-amber-100' : 'bg-gray-50 text-[var(--text-secondary)]'}`}
+                  className={`mt-2 p-2.5 rounded-lg text-xs leading-relaxed break-words ${
+                    log.toStatus === 'NEEDS_REVISION'
+                      ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                      : 'bg-gray-50 text-gray-700 border border-gray-100'
+                  }`}
                 >
                   {log.toStatus === 'NEEDS_REVISION' && (
-                    <div className="font-semibold text-amber-700 mb-1 flex items-center gap-1.5">
+                    <div className="font-semibold text-amber-700 mb-1 flex items-center gap-1.5 text-[11px]">
                       <AlertTriangle className="w-3.5 h-3.5" /> Revisions Requested
                     </div>
                   )}
