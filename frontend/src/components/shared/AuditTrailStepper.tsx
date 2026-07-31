@@ -16,9 +16,7 @@ interface AuditTrailStepperProps {
   currentStatus: string;
 }
 
-export const AuditTrailStepper: React.FC<AuditTrailStepperProps> = ({
-  auditTrail,
-}) => {
+export const AuditTrailStepper: React.FC<AuditTrailStepperProps> = ({ auditTrail }) => {
   // Helper to determine the icon and color based on the action/status
   const getStepVisuals = (action: string, status: string) => {
     if (status === 'APPROVED' || status === 'PARTIALLY_APPROVED') {
