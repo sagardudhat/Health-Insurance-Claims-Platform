@@ -28,21 +28,34 @@ export class EmailService {
     if (this.transporter) return this.transporter;
 
     // 1. If custom SMTP configured in .env, use real production SMTP server
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT) || 587,
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-      console.log(
-        `📧 [Email Engine] Connected to production SMTP server (${process.env.SMTP_HOST})`
-      );
-      return this.transporter;
+    const smtpHost = process.env.SMTP_HOST?.trim();
+    const smtpUser = process.env.SMTP_USER?.trim();
+    const smtpPass = process.env.SMTP_PASS?.trim();
+
+    if (smtpHost && smtpUser && smtpPass) {
+      try {
+        this.transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: Number(process.env.SMTP_PORT) || 587,
+          secure: process.env.SMTP_SECURE === 'true',
+          auth: {
+            user: smtpUser,
+            pass: smtpPass,
+          },
+        });
+        console.log(`📧 [Email Engine] Connected to custom SMTP server (${smtpHost})`);
+        return this.transporter;
+      } catch (err) {
+        console.warn(
+          `📧 [Email Engine Warning] Failed to connect to custom SMTP (${smtpHost}), falling back:`,
+          err
+        );
+      }
     }
+
+    console.log(
+      '📧 [Email Engine] No custom SMTP credentials provided in .env. Initializing local Ethereal test transport...'
+    );
 
     // 2. Fallback for testing: Generate Ethereal Email test SMTP account
     try {
@@ -59,8 +72,8 @@ export class EmailService {
       console.log(`📧 [Email Engine] Test Ethereal SMTP Initialized (User: ${testAccount.user})`);
     } catch (err) {
       console.warn(
-        '📧 [Email Engine] Failed to initialize Ethereal SMTP, using json transport fallback:',
-        err
+        '📧 [Email Engine Warning] Failed to initialize Ethereal SMTP, using json transport fallback:',
+        (err as Error).message
       );
       this.transporter = nodemailer.createTransport({ jsonTransport: true });
     }

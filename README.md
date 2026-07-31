@@ -1,209 +1,210 @@
-# ClaimCare - Health Insurance Claims Platform
+# ClaimCare — Full-Stack Health Insurance Claims Platform
 
-ClaimCare is a modern, full-stack health insurance claims processing platform designed to streamline the workflow between Healthcare Providers, Medical Reviewers, and System Administrators. 
+ClaimCare is a modern, full-stack health insurance claims processing platform designed to streamline the workflow between **Healthcare Providers**, **Medical Reviewers**, and **System Administrators**.
 
-This platform implements a robust state machine for claim adjudication, offering real-time tracking, structured data validation, and an intuitive user interface.
+It implements a strictly validated state machine for claim adjudication, real-time WebSocket notifications, a dynamic policy calculation engine, rule-based fraud detection, printable Explanation of Benefits (EOB) statements, and an immutable audit trail.
 
 ---
 
 ## 🏗 Architectural Overview
 
-ClaimCare employs a modern **Monorepo** structure, split into a React/Next.js frontend and a Node.js/Express backend.
+ClaimCare uses a modular **Monorepo** structure:
 
-- **Frontend (`/frontend`)**: Built with **Next.js 14 (App Router)**, React 18, and Tailwind CSS. It uses a strictly modular, feature-based architecture (`src/features`) where pages act as thin wrappers around highly cohesive View components. State is managed via `Zustand` and server state via `@tanstack/react-query`.
-- **Backend (`/backend`)**: Built with **Node.js, Express, and TypeScript**. It follows a strict 3-tier Layered Architecture (Controllers → Services → Repositories) for maximum separation of concerns. Data persistence is handled via **MongoDB** and `Mongoose`.
+- **Frontend (`/frontend`)**: Built with **Next.js 14 (App Router)**, React 18, Zustand state management, TanStack React Query, and Tailwind CSS. Employs a Feature-Sliced Design (`src/features`) with thin page wrappers around domain-specific components.
+- **Backend (`/backend`)**: Built with **Node.js, Express, and TypeScript**. Follows a strict 3-tier Layered Architecture (Controllers $\rightarrow$ Services $\rightarrow$ Repositories) with **MongoDB & Mongoose** data persistence.
 
 ---
 
 ## 🔄 Claim Adjudication State Machine
 
-Claims move through a strictly validated state machine governed by the backend core logic.
+Claims transition through a strictly enforced state machine map governed by backend validation:
 
 ```mermaid
 stateDiagram-v2
     [*] --> SUBMITTED : Provider Submits
     SUBMITTED --> UNDER_REVIEW : Reviewer Claims
     UNDER_REVIEW --> APPROVED : Full Approval
-    UNDER_REVIEW --> PARTIALLY_APPROVED : Partial Approval
+    UNDER_REVIEW --> PARTIALLY_APPROVED : Partial Line Approval
     UNDER_REVIEW --> REJECTED : Denied
-    UNDER_REVIEW --> NEEDS_REVISION : Needs More Info
-    NEEDS_REVISION --> SUBMITTED : Provider Resubmits
-    APPROVED --> PAID : Admin Disburses
-    PARTIALLY_APPROVED --> PAID : Admin Disburses
+    UNDER_REVIEW --> NEEDS_REVISION : Revision Requested
+    NEEDS_REVISION --> UNDER_REVIEW : Provider Resubmits
+    APPROVED --> PAID : Admin Disburses Payout
+    PARTIALLY_APPROVED --> PAID : Admin Disburses Payout
     REJECTED --> [*]
     PAID --> [*]
 ```
 
 ---
 
-## 👥 Role-Based Access Control (RBAC)
+## 👥 User Guides (All 3 Platform Roles)
 
-The platform supports three distinct roles, each with custom dashboards and permissions:
+### 🩺 1. Healthcare Provider Guide (`provider`)
+Providers submit and manage medical claims for patient care.
 
-1. **Healthcare Provider (`provider`)**
-   - Can submit new claims (with PDF/Image attachments).
-   - Can view the status of their own claims.
-   - Can update claims that are marked as `NEEDS_REVISION`.
-2. **Medical Reviewer (`reviewer`)**
-   - Can view the global queue of submitted claims.
-   - Can adjudicate claims (`APPROVED`, `REJECTED`, `PARTIALLY_APPROVED`, `NEEDS_REVISION`).
-3. **Platform Admin (`admin`)**
-   - Has a bird's-eye view of all platform statistics (Fraud flags, payout summaries).
-   - Can view an uneditable audit trail of all claims.
-   - Can manage user accounts.
-   - Can dynamically adjust policy rules (Annual Limit, Deductibles, Coverage Rates) from System Settings.
+- **Submit New Claims**:
+  1. Fill in Patient Name, Policy Number, DOB, Procedure Details, and Itemized Line Items.
+  2. Upload mandatory supporting documents (PDF, JPEG, PNG up to 5MB).
+  3. Submit claim $\rightarrow$ moves to `SUBMITTED` status and notifies Reviewers in real time.
+- **Track Claim Statuses**: View real-time status badges, itemized cost breakdowns, and patient responsibility on the Provider Dashboard.
+- **Revise & Resubmit Claims**:
+  1. If a claim is marked `NEEDS_REVISION` by a reviewer, click **Edit & Resubmit**.
+  2. Update patient details, line item quantities/costs, or attach additional files.
+  3. Resubmit $\rightarrow$ claim status moves to `UNDER_REVIEW`, emitting real-time WebSocket alerts (**"Revised Claim Resubmitted for Review"**) to reviewers.
+- **Generate EOB Statements**: Click **Print EOB** on any approved/paid claim to generate an official printable Explanation of Benefits (EOB) document.
 
 ---
 
-## 🚀 Getting Started
+### 🔍 2. Medical Reviewer Guide (`reviewer`)
+Reviewers adjudicate claims, inspect medical documentation, and approve insurance payouts.
+
+- **Medical Review Queue**: View all claims waiting for review sorted by submission/priority.
+- **Adjudicate Claims**:
+  - **Approve Full Claim**: Approves all line items $\rightarrow$ triggers backend Policy Engine calculation.
+  - **Partially Approve**: Select specific line items to deny (e.g. uncovered cosmetic add-ons).
+  - **Request Revision (`NEEDS_REVISION`)**: Send claim back to provider with mandatory reviewer notes specifying missing documentation.
+  - **Reject Claim**: Denies reimbursement for non-covered procedures.
+- **Live Coverage Preview**: The adjudication modal queries the Policy Engine to preview exact **Approved Charges**, **Deductible Applied**, **Insurer Payout (80%)**, and **Patient Owes** before submitting decisions.
+- **Smart Navigation**: Click the Back arrow on any claim detail page to return to the exact origin list (`/reviewer/claims`, `/reviewer/queue`, or `/reviewer/dashboard`).
+
+---
+
+### 🛡️ 3. Platform Administrator Guide (`admin`)
+Administrators oversee system operations, financial disbursements, fraud detection, and policy rules.
+
+- **Platform Analytics**: Bird's-eye dashboard displaying total claims, pending queue, total insurance payout disbursed, and flagged fraud count.
+- **Dynamic System Policy Settings**:
+  - **Annual Deductible** (Default `$500`): Yearly deductible amount absorbed per policy year.
+  - **Coverage Rate** (Default `80%`): Percentage covered by insurance post-deductible.
+  - **Annual Coverage Limit** (Default `$10,000`): Maximum insurance payout cap per calendar year.
+- **Rule-Based Fraud Audit**:
+  - Claims exceeding 3x the historical average cost for their procedure code are automatically flagged with an `Audit Flagged` badge.
+  - Administrators can review the anomaly rationale and click **Unflag Claim** with audit logging.
+- **Disburse Payouts**: Move `APPROVED` and `PARTIALLY_APPROVED` claims to final `PAID` status.
+- **Immutable Audit Trail**: Inspect an uneditable log of every action, timestamp, performer, and note for full regulatory compliance.
+
+---
+
+## 💰 Dynamic Policy Engine Logic
+
+Claim payouts and patient responsibilities are calculated dynamically using historical policy data:
+
+$$\text{Remaining Deductible} = \max(0, \text{Annual Deductible} - \text{Deductible Already Met This Year})$$
+
+$$\text{Deductible Applied} = \min(\text{Approved Total}, \text{Remaining Deductible})$$
+
+$$\text{After Deductible} = \max(0, \text{Approved Total} - \text{Deductible Applied})$$
+
+$$\text{Raw Covered (80\%)} = \text{After Deductible} \times 0.80$$
+
+$$\text{Insurer Payout} = \min(\text{Raw Covered}, \text{Remaining Annual Limit})$$
+
+$$\text{Patient Responsibility} = \text{Total Claimed} - \text{Insurer Payout}$$
+
+> [!NOTE]
+> **Approval Order Principle**: Deductible accumulation orders prior claims by **Approval Order** (`updatedAt`), ensuring that whichever claim is approved or partially approved first absorbs the annual deductible.
+
+---
+
+## 🚀 Getting Started & Local Setup
 
 ### Prerequisites
-- Node.js (v20+ recommended)
-- MongoDB (Local instance or Atlas URI)
-
-### Global Setup
-1. Clone the repository.
-2. The project is split into two directories: `frontend` and `backend`.
+- **Node.js** (v20+ recommended)
+- **MongoDB** (Local instance or Atlas URI)
 
 ---
 
-## 📦 Backend Setup (`/backend`)
+### 1. Backend Setup (`/backend`)
 
-The backend requires environment variables to connect to MongoDB and sign JWT tokens.
+```bash
+# Navigate to backend directory
+cd backend
 
-1. **Navigate to the backend directory:**
-   ```bash
-   cd backend
-   ```
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Configure Environment Variables:**
-   Create a `.env` file in the `backend/` directory:
-   ```env
-   PORT=5000
-   MONGO_URI=mongodb://127.0.0.1:27017/claimcare
-   JWT_SECRET=your_super_secret_jwt_key_change_in_production
-   NODE_ENV=development
-   ```
-4. **Run Unit Tests (Coverage Calculation Logic):**
-   ```bash
-   npm run test
-   ```
-5. **Run the Development Server:**
-   ```bash
-   npm run dev
-   ```
-   *The server will start on `http://localhost:5000`.*
+# Install dependencies
+npm install
+
+# Create environment configuration file (.env)
+cat <<EOT > .env
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/claimcare
+JWT_SECRET=super_secret_jwt_key_claimcare_2026
+NODE_ENV=development
+EOT
+
+# Seed database with demo accounts & policy configs
+npm run seed
+
+# Run Backend Unit Tests (Coverage Engine)
+npm run test
+
+# Start Express server (with hot-reloading)
+npm run dev
+```
+*Backend server will start at `http://localhost:5000`.*
 
 ---
 
-## 💻 Frontend Setup (`/frontend`)
+### 2. Frontend Setup (`/frontend`)
 
-The frontend requires environment variables to communicate with the backend API.
+```bash
+# Navigate to frontend directory
+cd frontend
 
-1. **Navigate to the frontend directory:**
-   ```bash
-   cd frontend
-   ```
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Configure Environment Variables:**
-   Create a `.env.local` file in the `frontend/` directory:
-   ```env
-   NEXT_PUBLIC_API_URL=http://localhost:5000/api
-   ```
-4. **Run the Development Server:**
-   ```bash
-   npm run dev
-   ```
-   *The application will start on `http://localhost:3000`.*
+# Install dependencies
+npm install
+
+# Create local environment configuration (.env.local)
+cat <<EOT > .env.local
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+EOT
+
+# Start Next.js development server
+npm run dev
+```
+*Frontend application will start at `http://localhost:3000`.*
 
 ---
 
-## 🛡 Coverage & Validation Rules
+## 🔑 Demo Login Accounts
 
-The application enforces strict data validation using **Zod** on both the frontend and backend.
-- **File Uploads**: Claims require a supporting document. Only `PDF`, `JPEG`, and `PNG` are allowed. Max size is 5MB.
-- **Date of Service**: Cannot be in the future.
-- **Diagnosis Codes**: Must conform to standard ICD-10 formats.
-- **Totals**: `totalClaimed` must be greater than 0.
-
-### 💰 Dynamic Policy Engine
-Claim payouts and patient responsibilities are calculated dynamically based on policy rules stored in MongoDB (`PolicyConfig` collection):
-- **Annual Deductible**: (Default `$500`) Deductible remaining is applied to approved claim items before coverage kicks in.
-- **Coverage Percentage**: (Default `80%`) Insurance covers 80% of eligible expenses after deductible; patient pays 20% coinsurance.
-- **Annual Coverage Limit**: (Default `$10,000`) Maximum insurance payout per policy year.
-### 📄 Explanation of Benefits (EOB) PDF Generation
-- **Official Insurance Statements**: Allows providers, reviewers, and admins to view and generate printable Explanation of Benefits (EOB) PDF statements.
-- **Statement ID & Watermark**: Includes formal header, Statement ID (`EOB-XXXXXXXX`), Patient/Provider details, financial payout summary cards, itemized service breakdown with denial statuses, and formal legal appeals notices.
-- **Print & Save as PDF**: Fully formatted for standard A4/Letter print rendering via `window.print()`.
-
-### 📚 Interactive API Documentation (Swagger / OpenAPI 3.0)
-- **Interactive UI**: Complete RESTful API documentation served directly at `http://localhost:5000/api-docs`.
-- **OpenAPI 3.0 JSON Spec**: Available at `http://localhost:5000/api-docs/json` for importing directly into Postman or Insomnia.
-- **Try-It-Out Endpoint Testing**: Includes request/response schemas, JWT Bearer token authentication header parameters, and full endpoint descriptions.
-
-### ⚡ Real-time WebSockets (Socket.io)
-- **Live Event Broadcasting**: Socket.io server running on Express emits `claim_status_updated` and `claim_submitted` events.
-- **Frontend Real-time Feed**: Real-time WebSocket notifications update the UI and populate the header notification drawer without requiring manual browser refreshes.
-
-### 📧 Email Notification Engine (`email.service.ts`)
-- **Automated Email Triggers**: Triggered directly inside the `claim.service.ts` status transition API pipeline.
-- **HTML & Console Dispatch Logs**: Dispatches tailored email templates (`CLAIM_SUBMITTED`, `STATUS_UPDATED`, `REVISION_REQUESTED`, `PAYMENT_DISBURSED`) to providers and reviewers with complete claim references and audit rationale.
+| Role | Email | Password | Dashboard URL |
+| :--- | :--- | :--- | :--- |
+| **Healthcare Provider** | `provider@claimcare.health` | `provider123` | `http://localhost:3000/provider/dashboard` |
+| **Medical Reviewer** | `reviewer@claimcare.health` | `reviewer123` | `http://localhost:3000/reviewer/dashboard` |
+| **Platform Administrator** | `admin@claimcare.health` | `admin123` | `http://localhost:3000/admin/dashboard` |
 
 ---
 
-## 🏛 Architectural Decisions & Trade-offs
+## 📚 Interactive API Documentation (Swagger / OpenAPI 3.0)
 
-1. **State Machine & Status Transitions**
-   - **Decision**: Implemented an explicit `ALLOWED_TRANSITIONS` state-machine map in `claim.service.ts`.
-   - **Why**: Prevents illegal workflow jumps (e.g., directly moving from `SUBMITTED` to `PAID` without review).
-   - **Trade-off**: Requires strict backend validation for every status update API request (returns 409 Conflict for invalid moves).
-
-2. **Immutable Audit Trail**
-   - **Decision**: Every status transition or note entry creates an append-only document in the `AuditLog` collection.
-   - **Why**: Ensures complete regulatory compliance and non-repudiation for financial and legal accountability.
-   - **Trade-off**: Increases collection size over time, offset by indexing `claimId` for $O(1)$ fast lookups.
-
-3. **Rule-Based Fraud Flagging Engine**
-   - **Decision**: Claims exceeding 3x the historical average for their procedure code are automatically flagged.
-   - **Why**: Provides an immediate, transparent, and computationally light algorithm without introducing ML pipeline overhead.
-   - **Trade-off**: May produce false positives for complex cases; addressed by providing admins an `Unflag Claim` action with audit logging.
-
-4. **Dynamic Database Coverage Calculations vs Static Config**
-   - **Decision**: Dynamic accumulation of yearly deductibles and limits on-the-fly from historical approved claims in MongoDB.
-   - **Why**: Eliminates stale cached balances and ensures $100\%$ accuracy if prior claims are adjusted or cancelled.
-   - **Trade-off**: Requires querying historical claims per policy during adjudication, optimized with compound indexes on `{ "patient.policyNumber": 1, status: 1 }`.
+- **Interactive Swagger UI**: `http://localhost:5000/api-docs`
+- **OpenAPI 3.0 JSON Spec**: `http://localhost:5000/api-docs/json`
 
 ---
 
-## 📂 Repository Structure
+## 📂 Repository Directory Structure
 
 ```
 claimcare/
-├── backend/                  # Express/Node.js API
+├── backend/                  # Express / Node.js API
 │   ├── src/
-│   │   ├── controllers/      # Route handlers
-│   │   ├── middleware/       # Auth, Upload, Error handling
-│   │   ├── models/           # Mongoose schemas
-│   │   ├── repositories/     # Data access layer
-│   │   ├── routes/           # Express routers
-│   │   ├── services/         # Business logic layer
-│   │   └── utils/            # Helpers
+│   │   ├── config/           # OpenAPI / Swagger & policy defaults
+│   │   ├── controllers/      # Route controllers (Express handlers)
+│   │   ├── middleware/       # Auth JWT, Multer Upload & Validation
+│   │   ├── models/           # Mongoose schemas (Claim, User, AuditLog)
+│   │   ├── repositories/     # Data Access Layer
+│   │   ├── routes/           # Express API routers
+│   │   ├── services/         # Domain Business Logic Layer
+│   │   └── tests/            # Unit tests for Policy Engine
 │   └── package.json
-└── frontend/                 # Next.js Application
+└── frontend/                 # Next.js 14 App Router App
     ├── src/
-    │   ├── app/              # Next.js App Router (Thin Wrappers)
-    │   ├── components/       # Global Shared UI Components
-    │   ├── features/         # Feature-Sliced Design Modules
-    │   │   ├── admin/        # Admin domain components & hooks
-    │   │   ├── auth/         # Auth domain components & hooks
-    │   │   ├── claims/       # Provider claims domain
-    │   │   └── review/       # Reviewer domain
-    │   └── config/           # Global constants
+    │   ├── app/              # Thin page route wrappers
+    │   ├── components/       # Global UI components (NotificationCenter, EOB PDF)
+    │   ├── features/         # Feature-Sliced Design modules
+    │   │   ├── admin/        # Admin dashboard & settings
+    │   │   ├── auth/         # Login & Register view components
+    │   │   ├── claims/       # Provider submission & claim details
+    │   │   └── review/       # Reviewer queue & adjudication modal
+    │   └── lib/              # Axios API client & helpers
     └── package.json
 ```
