@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useMyClaims } from '@/features/claims/hooks';
+import { useMyClaims, useMyStats } from '@/features/claims/hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
@@ -22,15 +22,14 @@ import { format } from 'date-fns';
 export default function ProviderDashboardPage() {
   const { user } = useAuthStore();
   const { data: responseData, isLoading } = useMyClaims({ page: 1, limit: 5 });
+  const { data: stats } = useMyStats();
 
   const claims = responseData?.data || [];
-  const totalCount = responseData?.pagination?.total || claims.length;
 
-  const approvedCount = claims.filter((c) => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED').length;
-  const pendingCount = claims.filter((c) => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW').length;
-  const totalApprovedPayout = claims
-    .filter((c) => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED')
-    .reduce((sum, c) => sum + (c.approvedAmount || 0), 0);
+  const totalCount = stats?.totalCount ?? 0;
+  const pendingCount = stats?.pendingCount ?? 0;
+  const approvedCount = stats?.approvedCount ?? 0;
+  const totalApprovedPayout = stats?.totalApprovedPayout ?? 0;
 
   return (
     <div className="h-full overflow-y-auto pr-1 space-y-6">

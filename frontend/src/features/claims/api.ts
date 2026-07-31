@@ -12,8 +12,13 @@ export const claimsApi = {
     return response.data.data;
   },
 
-  getMyClaims: async (params?: { page?: number; limit?: number; search?: string; searchField?: string }): Promise<PaginatedResponse<Claim>> => {
+  getMyClaims: async (params?: { page?: number; limit?: number; search?: string; searchField?: string; status?: string }): Promise<PaginatedResponse<Claim>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<Claim>>>('/claims/mine', { params });
+    return response.data.data;
+  },
+
+  getMyStats: async (): Promise<{ totalCount: number; pendingCount: number; approvedCount: number; totalApprovedPayout: number }> => {
+    const response = await apiClient.get<ApiResponse<any>>('/claims/mine/stats');
     return response.data.data;
   },
 

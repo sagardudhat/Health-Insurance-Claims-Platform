@@ -20,20 +20,24 @@ export default function MyClaimsListPage() {
   const limitParam = Number(searchParams.get('limit')) || 10;
   const searchParam = searchParams.get('search') || '';
   const searchFieldParam = searchParams.get('searchField') || 'all';
+  const statusParam = searchParams.get('status') || 'ALL';
 
   const [searchInput, setSearchInput] = useState(searchParam);
   const [selectedSearchField, setSelectedSearchField] = useState(searchFieldParam);
+  const [selectedStatus, setSelectedStatus] = useState(statusParam);
 
   useEffect(() => {
     setSearchInput(searchParam);
     setSelectedSearchField(searchFieldParam);
-  }, [searchParam, searchFieldParam]);
+    setSelectedStatus(statusParam);
+  }, [searchParam, searchFieldParam, statusParam]);
 
   const { data: responseData, isLoading, isError } = useMyClaims({
     page: pageParam,
     limit: limitParam,
     search: searchParam,
     searchField: searchFieldParam,
+    status: statusParam,
   });
 
   const claims = responseData?.data || [];
@@ -56,7 +60,7 @@ export default function MyClaimsListPage() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateQueryParams({ search: searchInput.trim(), searchField: selectedSearchField, page: 1 });
+    updateQueryParams({ search: searchInput.trim(), searchField: selectedSearchField, status: selectedStatus, page: 1 });
   };
 
   return (
@@ -85,6 +89,24 @@ export default function MyClaimsListPage() {
 
           {/* Search Form */}
           <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center gap-2">
+            <select
+              value={selectedStatus}
+              onChange={(e) => {
+                setSelectedStatus(e.target.value);
+                updateQueryParams({ status: e.target.value, page: 1 });
+              }}
+              className="py-1.5 px-3 text-xs rounded-lg border border-[var(--border)] bg-white font-medium text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--brand-500)]"
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="SUBMITTED">Submitted</option>
+              <option value="UNDER_REVIEW">Under Review</option>
+              <option value="NEEDS_REVISION">Needs Revision</option>
+              <option value="APPROVED">Approved</option>
+              <option value="PARTIALLY_APPROVED">Partially Approved</option>
+              <option value="PAID">Paid</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+            
             <select
               value={selectedSearchField}
               onChange={(e) => setSelectedSearchField(e.target.value)}
@@ -118,7 +140,8 @@ export default function MyClaimsListPage() {
                 onClick={() => {
                   setSearchInput('');
                   setSelectedSearchField('all');
-                  updateQueryParams({ search: undefined, searchField: undefined, page: 1 });
+                  setSelectedStatus('ALL');
+                  updateQueryParams({ search: undefined, searchField: undefined, status: undefined, page: 1 });
                 }}
                 className="text-xs text-gray-500"
               >
@@ -150,7 +173,8 @@ export default function MyClaimsListPage() {
                 onClick={() => {
                   setSearchInput('');
                   setSelectedSearchField('all');
-                  updateQueryParams({ search: undefined, searchField: undefined, page: 1 });
+                  setSelectedStatus('ALL');
+                  updateQueryParams({ search: undefined, searchField: undefined, status: undefined, page: 1 });
                 }}
               >
                 Reset Search

@@ -37,9 +37,15 @@ export class ClaimController {
     const limit = Number(req.query.limit) || 10;
     const search = req.query.search as string;
     const searchField = req.query.searchField as string;
+    const status = req.query.status as string;
 
-    const result = await claimService.getMyClaims(req.user!.id, page, limit, search, searchField);
+    const result = await claimService.getMyClaims(req.user!.id, page, limit, search, searchField, status);
     res.status(200).json(buildSuccess(result, 'Submitted claims fetched'));
+  });
+
+  getMyStats = catchAsync(async (req: Request, res: Response) => {
+    const stats = await claimService.getProviderStats(req.user!.id);
+    res.status(200).json(buildSuccess(stats, 'Provider stats fetched'));
   });
 
   getClaimById = catchAsync(async (req: Request, res: Response) => {

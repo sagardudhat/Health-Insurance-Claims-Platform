@@ -20,6 +20,7 @@ router.post(
 );
 
 router.get('/mine', authorize('provider'), claimController.getMyClaims);
+router.get('/mine/stats', authorize('provider'), claimController.getMyStats);
 
 // Shared/Protected Routes (Provider owner, Reviewer, or Admin)
 router.get('/:id', authorize('provider', 'reviewer', 'admin'), claimController.getClaimById);

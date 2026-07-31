@@ -126,15 +126,43 @@ export class ClaimService {
     page: number = 1,
     limit: number = 10,
     search?: string,
-    searchField?: string
+    searchField?: string,
+    status?: string
   ) {
+    const query: Record<string, any> = { submittedBy: userId };
+    
+    // Validate status against known enum
+    const VALID_STATUSES = ['SUBMITTED','UNDER_REVIEW','APPROVED','PARTIALLY_APPROVED','REJECTED','NEEDS_REVISION','PAID'];
+    if (status && status !== 'ALL' && VALID_STATUSES.includes(status)) {
+      query.status = status;
+    }
+
     return this.claimRepo.findPaginated(
-      { submittedBy: userId },
+      query,
       page,
       limit,
       search,
       this.sanitizeSearchField(searchField)
     );
+  }
+
+  async getProviderStats(userId: string) {
+    const claims = await this.claimRepo.findBySubmittedUser(userId);
+    
+    const totalCount = claims.length;
+    const pendingCount = claims.filter(c => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW').length;
+    const approvedCount = claims.filter(c => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED' || c.status === 'PAID').length;
+    
+    const totalApprovedPayout = claims
+      .filter(c => c.status === 'APPROVED' || c.status === 'PARTIALLY_APPROVED' || c.status === 'PAID')
+      .reduce((sum, c) => sum + (c.coveredAmount || 0), 0);
+
+    return {
+      totalCount,
+      pendingCount,
+      approvedCount,
+      totalApprovedPayout
+    };
   }
 
   async getReviewerQueue(
