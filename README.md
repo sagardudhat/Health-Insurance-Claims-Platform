@@ -87,7 +87,11 @@ The backend requires environment variables to connect to MongoDB and sign JWT to
    JWT_SECRET=your_super_secret_jwt_key_change_in_production
    NODE_ENV=development
    ```
-4. **Run the Development Server:**
+4. **Run Unit Tests (Coverage Calculation Logic):**
+   ```bash
+   npm run test
+   ```
+5. **Run the Development Server:**
    ```bash
    npm run dev
    ```
@@ -134,6 +138,30 @@ Claim payouts and patient responsibilities are calculated dynamically based on p
 - **Coverage Percentage**: (Default `80%`) Insurance covers 80% of eligible expenses after deductible; patient pays 20% coinsurance.
 - **Annual Coverage Limit**: (Default `$10,000`) Maximum insurance payout per policy year.
 - **Admin Configuration**: Admins can adjust these numbers on the fly via the System Settings dashboard.
+
+---
+
+## 🏛 Architectural Decisions & Trade-offs
+
+1. **State Machine & Status Transitions**
+   - **Decision**: Implemented an explicit `ALLOWED_TRANSITIONS` state-machine map in `claim.service.ts`.
+   - **Why**: Prevents illegal workflow jumps (e.g., directly moving from `SUBMITTED` to `PAID` without review).
+   - **Trade-off**: Requires strict backend validation for every status update API request (returns 409 Conflict for invalid moves).
+
+2. **Immutable Audit Trail**
+   - **Decision**: Every status transition or note entry creates an append-only document in the `AuditLog` collection.
+   - **Why**: Ensures complete regulatory compliance and non-repudiation for financial and legal accountability.
+   - **Trade-off**: Increases collection size over time, offset by indexing `claimId` for $O(1)$ fast lookups.
+
+3. **Rule-Based Fraud Flagging Engine**
+   - **Decision**: Claims exceeding 3x the historical average for their procedure code are automatically flagged.
+   - **Why**: Provides an immediate, transparent, and computationally light algorithm without introducing ML pipeline overhead.
+   - **Trade-off**: May produce false positives for complex cases; addressed by providing admins an `Unflag Claim` action with audit logging.
+
+4. **Dynamic Database Coverage Calculations vs Static Config**
+   - **Decision**: Dynamic accumulation of yearly deductibles and limits on-the-fly from historical approved claims in MongoDB.
+   - **Why**: Eliminates stale cached balances and ensures $100\%$ accuracy if prior claims are adjusted or cancelled.
+   - **Trade-off**: Requires querying historical claims per policy during adjudication, optimized with compound indexes on `{ "patient.policyNumber": 1, status: 1 }`.
 
 ---
 

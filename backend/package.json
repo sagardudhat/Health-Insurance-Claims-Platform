@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
+    "test": "ts-node-dev --transpile-only src/tests/coverage.service.test.ts",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.{ts,js,json}\"",
     "check:format": "prettier --check \"src/**/*.{ts,js,json}\"",
