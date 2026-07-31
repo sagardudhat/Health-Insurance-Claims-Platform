@@ -6,6 +6,13 @@ It implements a strictly validated state machine for claim adjudication, real-ti
 
 ---
 
+## 🔗 Project Links & Video Demo
+
+- 🎥 **Video Walkthrough (Vimeo)**: [https://vimeo.com/1214711522](https://vimeo.com/1214711522)
+- 💻 **GitHub Repository**: [https://github.com/sagardudhat/Health-Insurance-Claims-Platform](https://github.com/sagardudhat/Health-Insurance-Claims-Platform)
+
+---
+
 ## 🏗 Architectural Overview
 
 ClaimCare uses a modular **Monorepo** structure:
