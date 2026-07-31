@@ -35,16 +35,15 @@ export class ClaimService {
    * the server disk (e.g. /var/app/uploads/claims/doc-123.pdf) — exposing
    * this leaks the server directory structure to any API consumer.
    */
-  private sanitizeDocuments(documents: unknown[]): Record<string, unknown>[] {
-    return documents.map((doc: any) => {
-      const safe = typeof doc.toObject === 'function' ? doc.toObject() : { ...doc };
-      delete safe.path;
+  private sanitizeDocuments(documents: Record<string, unknown>[]): Record<string, unknown>[] {
+    return (documents || []).map((doc) => {
+      const { path, ...safe } = doc;
       return safe;
     });
   }
 
   private sanitizeClaimForResponse(claim: any): Record<string, unknown> {
-    const raw = typeof claim.toObject === 'function' ? claim.toObject() : { ...claim };
+    const raw = typeof claim?.toObject === 'function' ? claim.toObject() : { ...claim };
     if (raw.documents) {
       raw.documents = this.sanitizeDocuments(raw.documents);
     }
@@ -255,24 +254,20 @@ export class ClaimService {
 
       // Update line items denied status
       const safeDeniedIds = (deniedItemIds || []).map((id) => id.toString());
-      updatedItems = claim.items.map((item: unknown) => {
-        const raw = typeof (item as any).toObject === 'function' ? (item as any).toObject() : item;
-        const itemId = raw._id ? raw._id.toString() : '';
+      updatedItems = claim.items.map((item) => {
+        const itemId = item._id ? item._id.toString() : '';
         return {
-          ...raw,
+          ...item,
           isDenied: safeDeniedIds.includes(itemId),
         };
       });
     } else if (toStatus === 'REJECTED') {
       coveredAmount = 0;
       patientResponsibility = claim.totalClaimed;
-      updatedItems = claim.items.map((item: unknown) => {
-        const raw = typeof (item as any).toObject === 'function' ? (item as any).toObject() : item;
-        return {
-          ...raw,
-          isDenied: true,
-        };
-      });
+      updatedItems = claim.items.map((item) => ({
+        ...item,
+        isDenied: true,
+      }));
     }
 
     // 4. Update Claim in Database

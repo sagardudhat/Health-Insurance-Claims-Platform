@@ -47,18 +47,14 @@ export class CoverageService {
     // Standardize items to plain objects with safe numeric values
     const safeDeniedIds = (deniedItemIds || []).map((id) => id.toString());
 
-    const plainItems = (items || []).map((item: unknown) => {
-      const raw =
-        typeof (item as Record<string, any>).toObject === 'function'
-          ? (item as Record<string, any>).toObject()
-          : (item as Record<string, any>);
-      const itemId = raw._id ? raw._id.toString() : '';
-      const isDenied = raw.isDenied || safeDeniedIds.includes(itemId);
-      const quantity = Number(raw.quantity) || 0;
-      const unitCost = Number(raw.unitCost) || 0;
+    const plainItems = (items || []).map((item) => {
+      const itemId = item._id ? item._id.toString() : '';
+      const isDenied = item.isDenied || safeDeniedIds.includes(itemId);
+      const quantity = Number(item.quantity) || 0;
+      const unitCost = Number(item.unitCost) || 0;
 
       return {
-        ...raw,
+        ...item,
         _id: itemId,
         quantity,
         unitCost,
@@ -145,14 +141,10 @@ export class CoverageService {
     for (const prior of pastClaims) {
       alreadyCovered += Number(prior.coveredAmount) || 0;
 
-      const priorApprovedTotal = (prior.items || []).reduce((sum, item: unknown) => {
-        const raw =
-          typeof (item as Record<string, any>).toObject === 'function'
-            ? (item as Record<string, any>).toObject()
-            : (item as Record<string, any>);
-        if (raw.isDenied) return sum;
-        const qty = Number(raw.quantity) || 0;
-        const cost = Number(raw.unitCost) || 0;
+      const priorApprovedTotal = (prior.items || []).reduce((sum, item) => {
+        if (item.isDenied) return sum;
+        const qty = Number(item.quantity) || 0;
+        const cost = Number(item.unitCost) || 0;
         return sum + qty * cost;
       }, 0);
 
