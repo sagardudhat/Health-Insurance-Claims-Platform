@@ -1,6 +1,8 @@
 import { claimRepository, ClaimRepository } from '../repositories/claim.repository';
 import { auditLogRepository, AuditLogRepository } from '../repositories/auditLog.repository';
 import { coverageService, CoverageService } from './coverage.service';
+import { emailService } from './email.service';
+import { emitRealtimeNotification } from './socket.service';
 import { AppError } from '../errors';
 import { ClaimStatus, UserRole } from '../types';
 import { ALLOWED_SEARCH_FIELDS } from '../validators/claim.validators';
@@ -115,6 +117,28 @@ export class ClaimService {
     });
 
     await this.evaluateFraudFlag(claim._id.toString());
+
+    // Dispatch Email & Socket.io Notification
+    emailService
+      .sendClaimStatusEmail({
+        to: 'reviewers@claimcare.health',
+        subject: `New Claim Submitted (#${claim._id.toString().slice(-6).toUpperCase()})`,
+        template: 'CLAIM_SUBMITTED',
+        data: {
+          claimId: claim._id.toString(),
+          patientName: data.patientName,
+          status: 'SUBMITTED',
+          amount: totalClaimed,
+        },
+      })
+      .catch(console.error);
+
+    emitRealtimeNotification('claim_submitted', {
+      claimId: claim._id.toString(),
+      patientName: data.patientName,
+      totalClaimed,
+      status: 'SUBMITTED',
+    });
 
     return this.getClaimById(claim._id.toString(), userId, 'provider');
   }
@@ -288,6 +312,43 @@ export class ClaimService {
       performedBy: reviewerUserId,
       role,
       note: note || `Status transitioned to ${toStatus}`,
+    });
+
+    // 6. Trigger Email & Socket.io Real-time Notifications
+    const submittedUser = claim.submittedBy as unknown as
+      { name?: string; email?: string } | undefined;
+    const providerEmail = submittedUser?.email || 'provider@hospital.org';
+    const recipientName = submittedUser?.name || 'Healthcare Provider';
+    const emailTemplate =
+      toStatus === 'NEEDS_REVISION'
+        ? 'REVISION_REQUESTED'
+        : toStatus === 'PAID'
+          ? 'PAYMENT_DISBURSED'
+          : 'STATUS_UPDATED';
+
+    emailService
+      .sendClaimStatusEmail({
+        to: providerEmail,
+        subject: `Claim #${claim._id.toString().slice(-6).toUpperCase()} Status Updated to ${toStatus}`,
+        template: emailTemplate,
+        data: {
+          claimId,
+          patientName: claim.patient.name,
+          status: toStatus,
+          amount: coveredAmount,
+          reviewerNotes: note,
+          recipientName,
+        },
+      })
+      .catch(console.error);
+
+    emitRealtimeNotification('claim_status_updated', {
+      claimId,
+      patientName: claim.patient.name,
+      fromStatus,
+      toStatus,
+      coveredAmount,
+      reviewerNotes: note,
     });
 
     return this.getClaimById(claimId, reviewerUserId, role);

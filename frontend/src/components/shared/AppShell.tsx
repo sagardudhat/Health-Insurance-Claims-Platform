@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/features/auth/store';
+import { NotificationCenter } from '@/components/shared/NotificationCenter';
 import { USER_ROLES, ROLE_LABELS, UserRole } from '@/config/constants';
 import {
   FileText,
@@ -161,6 +162,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
         {mounted && user && (
           <div className="flex items-center gap-2">
+            <NotificationCenter />
             <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--brand-50)] text-[var(--brand-700)] px-2 py-0.5 rounded">
               {user.role}
             </span>
@@ -303,13 +305,16 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={handleLogout}
-                    className="text-[var(--text-muted)] hover:text-red-600 transition-colors p-1.5 rounded-lg hover:bg-white shrink-0"
-                    title="Sign Out"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <NotificationCenter />
+                    <button
+                      onClick={handleLogout}
+                      className="text-[var(--text-muted)] hover:text-red-600 transition-colors p-1.5 rounded-lg hover:bg-white shrink-0"
+                      title="Sign Out"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
                 </>
               )}
             </>
@@ -328,7 +333,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
       {/* Main Page Layout Wrapper */}
       <main
-        className={`flex-1 h-[calc(100vh-3.5rem)] md:h-screen overflow-hidden flex flex-col transition-all duration-300 print:p-0 print:m-0 print:h-auto print:block print:overflow-visible ${
+        className={`flex-1 h-[calc(100vh-3.5rem)] md:h-screen overflow-hidden flex flex-col transition-[padding-left] duration-300 print:p-0 print:m-0 print:h-auto print:block print:overflow-visible ${
           isCollapsed ? 'md:pl-20' : 'md:pl-60 print:pl-0'
         }`}
       >

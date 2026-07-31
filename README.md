@@ -147,6 +147,14 @@ Claim payouts and patient responsibilities are calculated dynamically based on p
 - **OpenAPI 3.0 JSON Spec**: Available at `http://localhost:5000/api-docs/json` for importing directly into Postman or Insomnia.
 - **Try-It-Out Endpoint Testing**: Includes request/response schemas, JWT Bearer token authentication header parameters, and full endpoint descriptions.
 
+### ⚡ Real-time WebSockets (Socket.io)
+- **Live Event Broadcasting**: Socket.io server running on Express emits `claim_status_updated` and `claim_submitted` events.
+- **Frontend Real-time Feed**: Real-time WebSocket notifications update the UI and populate the header notification drawer without requiring manual browser refreshes.
+
+### 📧 Email Notification Engine (`email.service.ts`)
+- **Automated Email Triggers**: Triggered directly inside the `claim.service.ts` status transition API pipeline.
+- **HTML & Console Dispatch Logs**: Dispatches tailored email templates (`CLAIM_SUBMITTED`, `STATUS_UPDATED`, `REVISION_REQUESTED`, `PAYMENT_DISBURSED`) to providers and reviewers with complete claim references and audit rationale.
+
 ---
 
 ## 🏛 Architectural Decisions & Trade-offs

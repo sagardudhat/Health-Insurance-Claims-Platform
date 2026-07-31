@@ -47,6 +47,7 @@ export const NewClaimForm: React.FC = () => {
   const { mutate: createClaim, isPending, error: submitError } = useCreateClaim();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const {
     register,
@@ -430,8 +431,10 @@ export const NewClaimForm: React.FC = () => {
           <Button
             type="submit"
             size="lg"
-            isLoading={isPending}
-            loadingText="Submitting Insurance Claim..."
+            isLoading={isPending || isNavigating}
+            loadingText={
+              isNavigating ? 'Claim Submitted! Loading Details...' : 'Submitting Claim...'
+            }
             className="w-full md:w-auto px-8 font-semibold text-xs"
           >
             <span>Submit Claim to Review Queue</span>

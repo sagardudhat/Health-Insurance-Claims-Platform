@@ -42,7 +42,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-xl border border-[var(--border)] shadow-xl max-w-md w-full p-6 space-y-4 relative">
         <button
           onClick={onClose}

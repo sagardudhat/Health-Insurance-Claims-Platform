@@ -3,6 +3,7 @@ import { usePathname } from 'next/navigation';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Claim } from '@/features/claims/types';
+import { USER_ROLES, CLAIM_STATUSES } from '@/config/constants';
 
 interface ClaimAlertsProps {
   claim: Claim;
@@ -18,7 +19,8 @@ export const ClaimAlerts: React.FC<ClaimAlertsProps> = ({
   onStartEdit,
 }) => {
   const pathname = usePathname() || '';
-  const canClearFlag = userRole === 'admin' || pathname.startsWith('/admin');
+  const canClearFlag = userRole === USER_ROLES.ADMIN || pathname.startsWith('/admin');
+  const isProvider = userRole === USER_ROLES.PROVIDER || pathname.startsWith('/provider');
 
   return (
     <>
@@ -57,26 +59,27 @@ export const ClaimAlerts: React.FC<ClaimAlertsProps> = ({
       )}
 
       {/* Reviewer Note Warning Alert (Only if currently Needs Revision or Rejected) */}
-      {claim.reviewerNotes && ['NEEDS_REVISION', 'REJECTED'].includes(claim.status) && (
-        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 font-semibold text-sm text-amber-800">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Reviewer Notes & Clarification Requested</span>
+      {claim.reviewerNotes &&
+        [CLAIM_STATUSES.NEEDS_REVISION, CLAIM_STATUSES.REJECTED].includes(claim.status as any) && (
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 font-semibold text-sm text-amber-800">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Reviewer Notes & Clarification Requested</span>
+              </div>
+              {claim.status === CLAIM_STATUSES.NEEDS_REVISION && isProvider && onStartEdit && (
+                <Button
+                  size="sm"
+                  className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
+                  onClick={onStartEdit}
+                >
+                  Edit & Resubmit Claim
+                </Button>
+              )}
             </div>
-            {claim.status === 'NEEDS_REVISION' && onStartEdit && (
-              <Button
-                size="sm"
-                className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
-                onClick={onStartEdit}
-              >
-                Edit & Resubmit Claim
-              </Button>
-            )}
+            <p className="text-xs leading-relaxed pl-6">{claim.reviewerNotes}</p>
           </div>
-          <p className="text-xs leading-relaxed pl-6">{claim.reviewerNotes}</p>
-        </div>
-      )}
+        )}
     </>
   );
 };

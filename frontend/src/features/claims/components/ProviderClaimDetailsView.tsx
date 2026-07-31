@@ -26,6 +26,7 @@ import { ClaimEditForm } from './claim-details/ClaimEditForm';
 import { ClaimDetailCards } from './claim-details/ClaimDetailCards';
 import { ClaimReviewModal } from './claim-details/ClaimReviewModal';
 import { EobPdfModal } from './claim-details/EobPdfModal';
+import { USER_ROLES, CLAIM_STATUSES } from '@/config/constants';
 
 export const ProviderClaimDetailsView = () => {
   const params = useParams();
@@ -41,16 +42,20 @@ export const ProviderClaimDetailsView = () => {
   const userRole =
     user?.role ||
     (pathname.startsWith('/admin')
-      ? 'admin'
+      ? USER_ROLES.ADMIN
       : pathname.startsWith('/reviewer')
-        ? 'reviewer'
-        : 'provider');
+        ? USER_ROLES.REVIEWER
+        : USER_ROLES.PROVIDER);
 
   const isReviewerOrAdmin =
-    userRole === 'reviewer' ||
-    userRole === 'admin' ||
+    userRole === USER_ROLES.REVIEWER ||
+    userRole === USER_ROLES.ADMIN ||
     pathname.startsWith('/reviewer') ||
     pathname.startsWith('/admin');
+
+  const isProvider =
+    userRole === USER_ROLES.PROVIDER ||
+    (!pathname.startsWith('/admin') && !pathname.startsWith('/reviewer'));
 
   const backLink = pathname.startsWith('/admin')
     ? '/admin/claims'
@@ -97,6 +102,9 @@ export const ProviderClaimDetailsView = () => {
     note: string,
     deniedItemIds: string[]
   ) => {
+    // Close the review decision form modal first so the confirmation dialog is crisp & clear
+    setIsReviewModalOpen(false);
+
     const decisionLabels: Record<string, string> = {
       APPROVED: 'Approve Full Claim',
       PARTIALLY_APPROVED: 'Partially Approve',
@@ -122,11 +130,11 @@ export const ProviderClaimDetailsView = () => {
             ? 'warning'
             : 'brand',
       onConfirm: () => {
-        setIsReviewModalOpen(false);
         updateClaimStatus(
           { claimId: claim._id, toStatus: decision, note, deniedItemIds },
           {
             onSuccess: () => setConfirmAction(null),
+            onError: () => setConfirmAction(null),
           }
         );
       },
@@ -244,7 +252,7 @@ export const ProviderClaimDetailsView = () => {
             claim={claim}
             userRole={userRole}
             onClearFlag={() => setIsUnflagConfirmOpen(true)}
-            onStartEdit={() => setIsEditing(true)}
+            onStartEdit={isProvider ? () => setIsEditing(true) : undefined}
           />
 
           {isEditing ? (
