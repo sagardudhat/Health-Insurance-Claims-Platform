@@ -7,7 +7,8 @@ import { useClaimDetails, useResubmitClaim } from '@/features/claims/hooks';
 import { useUnflagClaim } from '@/features/admin/hooks';
 import { useUpdateClaimStatus } from '@/features/review/hooks';
 import { useAuthStore } from '@/features/auth/store';
-import { StatusBadge } from '@/components/shared/StatusBadge';
+import { StatusBadge, ClaimStatus } from '@/components/shared/StatusBadge';
+import { AuditTrailStepper } from '@/components/shared/AuditTrailStepper';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ClaimDetailsSkeleton } from '@/components/ui/skeleton';
@@ -902,35 +903,13 @@ export default function ClaimDetailsPage() {
             </span>
           </h3>
 
-          <div className="mt-3 flex-1 overflow-y-auto min-h-0 space-y-3 pr-1">
+          <div className="mt-3 flex-1 overflow-y-auto min-h-0 space-y-3 pr-1 pb-4">
             {auditTrail.length === 0 ? (
               <p className="text-xs text-[var(--text-muted)] py-4 text-center">
                 No audit logs recorded.
               </p>
             ) : (
-              auditTrail.map((log) => (
-                <div
-                  key={log._id}
-                  className="flex items-start gap-2.5 text-xs p-3 rounded-lg bg-gray-50 border border-[var(--border)]"
-                >
-                  <Clock className="w-4 h-4 text-[var(--brand-500)] shrink-0 mt-0.5" />
-                  <div className="space-y-1 flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1 flex-wrap">
-                      <span className="font-semibold text-[var(--text-primary)] truncate">
-                        {log.action}
-                      </span>
-                      <StatusBadge status={log.toStatus} />
-                    </div>
-                    <p className="text-[var(--text-secondary)] text-[11px] leading-snug">
-                      {log.note || 'No notes attached'}
-                    </p>
-                    <div className="flex items-center justify-between pt-1 border-t border-[var(--border)] text-[10px] text-[var(--text-muted)]">
-                      <span>By: {log.performedBy?.name || 'System'}</span>
-                      <span>{format(new Date(log.timestamp), 'MMM dd, HH:mm')}</span>
-                    </div>
-                  </div>
-                </div>
-              ))
+              <AuditTrailStepper auditTrail={auditTrail} currentStatus={claim.status} />
             )}
           </div>
         </div>
