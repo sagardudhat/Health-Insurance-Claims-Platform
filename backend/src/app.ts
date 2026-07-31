@@ -1,6 +1,7 @@
 // Express Application Assembly: Middleware registration, route mounting, health check, and error handlers.
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -17,6 +18,7 @@ dotenv.config();
 export const app = express();
 
 // Global Middleware
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
