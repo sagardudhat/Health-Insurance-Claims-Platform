@@ -1,14 +1,16 @@
 import { z } from 'zod';
 
+import { CLAIM_STATUSES } from '../config/constants';
+
 // ── Whitelist of valid claim status values ────────────────────────────────────
 export const VALID_STATUSES = [
-  'SUBMITTED',
-  'UNDER_REVIEW',
-  'APPROVED',
-  'PARTIALLY_APPROVED',
-  'REJECTED',
-  'NEEDS_REVISION',
-  'PAID',
+  CLAIM_STATUSES.SUBMITTED,
+  CLAIM_STATUSES.UNDER_REVIEW,
+  CLAIM_STATUSES.APPROVED,
+  CLAIM_STATUSES.PARTIALLY_APPROVED,
+  CLAIM_STATUSES.REJECTED,
+  CLAIM_STATUSES.NEEDS_REVISION,
+  CLAIM_STATUSES.PAID,
 ] as const;
 
 // ── Whitelist of searchable fields ────────────────────────────────────────────

@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { CLAIM_STATUSES } from '../config/constants';
 import { ClaimStatus } from '../types';
 
 export interface ILineItem {
@@ -84,16 +85,8 @@ const claimSchema = new Schema<IClaimDocument>(
     documents: [documentSchema],
     status: {
       type: String,
-      enum: [
-        'SUBMITTED',
-        'UNDER_REVIEW',
-        'APPROVED',
-        'PARTIALLY_APPROVED',
-        'REJECTED',
-        'NEEDS_REVISION',
-        'PAID',
-      ],
-      default: 'SUBMITTED',
+      enum: Object.values(CLAIM_STATUSES),
+      default: CLAIM_STATUSES.SUBMITTED,
       index: true,
     },
     submittedBy: {

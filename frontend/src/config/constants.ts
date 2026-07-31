@@ -18,3 +18,13 @@ export const ROLE_DASHBOARDS: Record<UserRole, string> = {
   [USER_ROLES.REVIEWER]: '/reviewer/dashboard',
   [USER_ROLES.ADMIN]: '/admin/dashboard',
 } as const;
+
+export const CLAIM_STATUSES = {
+  SUBMITTED: 'SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  APPROVED: 'APPROVED',
+  PARTIALLY_APPROVED: 'PARTIALLY_APPROVED',
+  REJECTED: 'REJECTED',
+  NEEDS_REVISION: 'NEEDS_REVISION',
+  PAID: 'PAID',
+} as const;

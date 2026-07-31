@@ -18,15 +18,17 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
+import { CLAIM_STATUSES } from '../../../config/constants';
+
 const STATUS_FILTERS = [
   { id: 'ALL', label: 'All Statuses' },
-  { id: 'SUBMITTED', label: 'Submitted' },
-  { id: 'UNDER_REVIEW', label: 'Under Review' },
-  { id: 'APPROVED', label: 'Approved' },
-  { id: 'PARTIALLY_APPROVED', label: 'Partially Approved' },
-  { id: 'REJECTED', label: 'Rejected' },
-  { id: 'NEEDS_REVISION', label: 'Needs Revision' },
-  { id: 'PAID', label: 'Paid' },
+  { id: CLAIM_STATUSES.SUBMITTED, label: 'Submitted' },
+  { id: CLAIM_STATUSES.UNDER_REVIEW, label: 'Under Review' },
+  { id: CLAIM_STATUSES.APPROVED, label: 'Approved' },
+  { id: CLAIM_STATUSES.PARTIALLY_APPROVED, label: 'Partially Approved' },
+  { id: CLAIM_STATUSES.REJECTED, label: 'Rejected' },
+  { id: CLAIM_STATUSES.NEEDS_REVISION, label: 'Needs Revision' },
+  { id: CLAIM_STATUSES.PAID, label: 'Paid' },
 ];
 
 const CLAIM_SEARCH_FIELDS = [

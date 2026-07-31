@@ -10,6 +10,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { PlusCircle, FileText, Search, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
+import { CLAIM_STATUSES } from '../../../config/constants';
 
 export default function MyClaimsListPage() {
   const router = useRouter();
@@ -98,13 +99,13 @@ export default function MyClaimsListPage() {
               className="py-1.5 px-3 text-xs rounded-lg border border-[var(--border)] bg-white font-medium text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--brand-500)]"
             >
               <option value="ALL">All Statuses</option>
-              <option value="SUBMITTED">Submitted</option>
-              <option value="UNDER_REVIEW">Under Review</option>
-              <option value="NEEDS_REVISION">Needs Revision</option>
-              <option value="APPROVED">Approved</option>
-              <option value="PARTIALLY_APPROVED">Partially Approved</option>
-              <option value="PAID">Paid</option>
-              <option value="REJECTED">Rejected</option>
+              <option value={CLAIM_STATUSES.SUBMITTED}>Submitted</option>
+              <option value={CLAIM_STATUSES.UNDER_REVIEW}>Under Review</option>
+              <option value={CLAIM_STATUSES.NEEDS_REVISION}>Needs Revision</option>
+              <option value={CLAIM_STATUSES.APPROVED}>Approved</option>
+              <option value={CLAIM_STATUSES.PARTIALLY_APPROVED}>Partially Approved</option>
+              <option value={CLAIM_STATUSES.PAID}>Paid</option>
+              <option value={CLAIM_STATUSES.REJECTED}>Rejected</option>
             </select>
             
             <select

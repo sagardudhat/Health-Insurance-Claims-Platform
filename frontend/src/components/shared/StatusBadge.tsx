@@ -1,13 +1,7 @@
 import React from 'react';
+import { CLAIM_STATUSES } from '../../config/constants';
 
-export type ClaimStatus =
-  | 'SUBMITTED'
-  | 'UNDER_REVIEW'
-  | 'APPROVED'
-  | 'PARTIALLY_APPROVED'
-  | 'REJECTED'
-  | 'NEEDS_REVISION'
-  | 'PAID';
+export type ClaimStatus = (typeof CLAIM_STATUSES)[keyof typeof CLAIM_STATUSES];
 
 interface StatusBadgeProps {
   status: ClaimStatus;
@@ -18,37 +12,37 @@ const statusConfig: Record<
   ClaimStatus,
   { label: string; bg: string; color: string }
 > = {
-  SUBMITTED: {
+  [CLAIM_STATUSES.SUBMITTED]: {
     label: 'Submitted',
     bg: 'var(--status-submitted-bg)',
     color: 'var(--status-submitted)',
   },
-  UNDER_REVIEW: {
+  [CLAIM_STATUSES.UNDER_REVIEW]: {
     label: 'Under Review',
     bg: 'var(--status-review-bg)',
     color: 'var(--status-review)',
   },
-  NEEDS_REVISION: {
+  [CLAIM_STATUSES.NEEDS_REVISION]: {
     label: 'Needs Revision',
     bg: 'var(--status-revision-bg)',
     color: 'var(--status-revision)',
   },
-  APPROVED: {
+  [CLAIM_STATUSES.APPROVED]: {
     label: 'Approved',
     bg: 'var(--status-approved-bg)',
     color: 'var(--status-approved)',
   },
-  PARTIALLY_APPROVED: {
+  [CLAIM_STATUSES.PARTIALLY_APPROVED]: {
     label: 'Partially Approved',
     bg: 'var(--status-partial-bg)',
     color: 'var(--status-partial)',
   },
-  REJECTED: {
+  [CLAIM_STATUSES.REJECTED]: {
     label: 'Rejected',
     bg: 'var(--status-rejected-bg)',
     color: 'var(--status-rejected)',
   },
-  PAID: {
+  [CLAIM_STATUSES.PAID]: {
     label: 'Paid',
     bg: 'var(--status-paid-bg)',
     color: 'var(--status-paid)',
@@ -56,7 +50,7 @@ const statusConfig: Record<
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, isFlagged }) => {
-  const config = statusConfig[status] || statusConfig.SUBMITTED;
+  const config = statusConfig[status] || statusConfig[CLAIM_STATUSES.SUBMITTED];
 
   return (
     <span
