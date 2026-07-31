@@ -1,5 +1,6 @@
 import { claimRepository, ClaimRepository } from '../repositories/claim.repository';
 import { auditLogRepository, AuditLogRepository } from '../repositories/auditLog.repository';
+import { userRepository } from '../repositories/user.repository';
 import { coverageService, CoverageService } from './coverage.service';
 import { emailService } from './email.service';
 import { emitRealtimeNotification } from './socket.service';
@@ -119,16 +120,20 @@ export class ClaimService {
     await this.evaluateFraudFlag(claim._id.toString());
 
     // Dispatch Email & Socket.io Notification
+    const submittingUser = await userRepository.findById(userId).catch(() => null);
+    const providerEmail = submittingUser?.email || 'provider@hospital.org';
+
     emailService
       .sendClaimStatusEmail({
-        to: 'reviewers@claimcare.health',
-        subject: `New Claim Submitted (#${claim._id.toString().slice(-6).toUpperCase()})`,
+        to: providerEmail,
+        subject: `Claim Submitted Successfully (#${claim._id.toString().slice(-6).toUpperCase()})`,
         template: 'CLAIM_SUBMITTED',
         data: {
           claimId: claim._id.toString(),
           patientName: data.patientName,
           status: 'SUBMITTED',
           amount: totalClaimed,
+          recipientName: submittingUser?.name || 'Healthcare Provider',
         },
       })
       .catch(console.error);

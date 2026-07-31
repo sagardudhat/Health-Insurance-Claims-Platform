@@ -4,6 +4,7 @@ import { userRepository, UserRepository } from '../repositories/user.repository'
 import { RegisterInput, LoginInput } from '../validators/auth.validators';
 import { AppError } from '../errors';
 import { UserRole } from '../types';
+import { emailService } from './email.service';
 
 export class AuthService {
   private userRepo: UserRepository;
@@ -27,6 +28,20 @@ export class AuthService {
       passwordHash,
       role: input.role as UserRole,
     });
+
+    // Dispatch Registration Welcome Email
+    emailService
+      .sendClaimStatusEmail({
+        to: user.email,
+        subject: `Welcome to ClaimCare (${user.role.toUpperCase()})`,
+        template: 'WELCOME_REGISTER',
+        data: {
+          recipientName: user.name,
+          userEmail: user.email,
+          role: user.role,
+        },
+      })
+      .catch(console.error);
 
     const token = this.generateToken(user._id.toString(), user.role);
     const refreshToken = this.generateRefreshToken(user._id.toString());
