@@ -12,7 +12,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (data: LoginInput) => authApi.login(data),
     onSuccess: (data) => {
-      setAuth(data.user, data.token);
+      setAuth(data.user, data.token, data.refreshToken);
 
       const targetPath = ROLE_DASHBOARDS[data.user.role as UserRole] || '/provider/dashboard';
       router.push(targetPath);
@@ -27,7 +27,7 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: (data: RegisterInput) => authApi.register(data),
     onSuccess: (data) => {
-      setAuth(data.user, data.token);
+      setAuth(data.user, data.token, data.refreshToken);
 
       const targetPath = ROLE_DASHBOARDS[data.user.role as UserRole] || '/provider/dashboard';
       router.push(targetPath);

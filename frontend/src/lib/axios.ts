@@ -35,16 +35,43 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401/403 Unauthorized globally with clean redirect
+// Response Interceptor: Handle 401 Unauthorized with Automatic Refresh Token Retry
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/auth/refresh-token')
+    ) {
+      originalRequest._retry = true;
+
+      const refreshToken = useAuthStore.getState().refreshToken || getCookie('refreshToken');
+
+      if (refreshToken) {
+        try {
+          const res = await axios.post(`${baseURL}/auth/refresh-token`, { refreshToken });
+          const { user, token: newToken, refreshToken: newRefreshToken } = res.data.data;
+
+          useAuthStore.getState().setAuth(user, newToken, newRefreshToken);
+
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return apiClient(originalRequest);
+        } catch (refreshErr) {
+          console.warn('Refresh token expired or invalid, redirecting to login...');
+        }
+      }
+
       useAuthStore.getState().logout();
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';
       }
     }
+
     return Promise.reject(error);
   }
 );

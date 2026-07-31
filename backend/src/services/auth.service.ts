@@ -125,8 +125,8 @@ export class AuthService {
 
   private generateToken(userId: string, role: UserRole): string {
     const secret = process.env.JWT_SECRET || 'supersecretjwtkey_claims_platform_2026';
-    // Access token has short expiration
-    return jwt.sign({ id: userId, role }, secret, { expiresIn: '30m' });
+    // Access token valid for 24 hours to prevent session timeouts during testing
+    return jwt.sign({ id: userId, role }, secret, { expiresIn: '24h' });
   }
 
   private generateRefreshToken(userId: string): string {

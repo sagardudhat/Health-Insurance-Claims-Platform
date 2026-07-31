@@ -25,13 +25,71 @@ export const ClaimReviewModal: React.FC<ClaimReviewModalProps> = ({
   >('APPROVED');
   const [reviewNote, setReviewNote] = useState<string>('');
   const [deniedItemIds, setDeniedItemIds] = useState<string[]>([]);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const itemCount = claim.items?.length || 0;
+  const isPartialDisabled = itemCount <= 1;
+
+  // Reset form when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setReviewDecision('APPROVED');
+      setReviewNote('');
+      setDeniedItemIds([]);
+      setValidationError(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    setReviewDecision('APPROVED');
+    setReviewNote('');
+    setDeniedItemIds([]);
+    setValidationError(null);
+    onClose();
+  };
+
+  const handleDecisionChange = (
+    newDecision: 'APPROVED' | 'PARTIALLY_APPROVED' | 'NEEDS_REVISION' | 'REJECTED'
+  ) => {
+    if (newDecision === 'PARTIALLY_APPROVED' && isPartialDisabled) return;
+    setReviewDecision(newDecision);
+    setReviewNote(''); // Clear notes when changing decision!
+    setDeniedItemIds([]);
+    setValidationError(null);
+  };
+
+  const handleSubmit = () => {
+    setValidationError(null);
+
+    // Validation 1: Notes required for NEEDS_REVISION or REJECTED
+    if (['NEEDS_REVISION', 'REJECTED'].includes(reviewDecision) && !reviewNote.trim()) {
+      setValidationError('Please provide a note/reason explaining this decision.');
+      return;
+    }
+
+    // Validation 2: Partial approval requires selecting at least 1 denied item and leaving at least 1 approved
+    if (reviewDecision === 'PARTIALLY_APPROVED') {
+      if (deniedItemIds.length === 0) {
+        setValidationError('Please check at least one line item to deny for partial approval.');
+        return;
+      }
+      if (deniedItemIds.length >= itemCount) {
+        setValidationError(
+          'Denying all items is a full rejection. Please select the "Reject" decision instead.'
+        );
+        return;
+      }
+    }
+
+    onReviewSubmit(reviewDecision, reviewNote.trim(), deniedItemIds);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" onClick={handleClose} />
 
       {/* Modal Card */}
       <div className="relative z-10 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-[var(--border)] overflow-hidden">
@@ -51,12 +109,19 @@ export const ClaimReviewModal: React.FC<ClaimReviewModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-[var(--text-muted)] transition-colors"
+            onClick={handleClose}
+            className="p-1.5 rounded-lg hover:bg-gray-100 text-[var(--text-muted)] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
+
+        {/* Validation Error Banner */}
+        {validationError && (
+          <div className="mx-6 mt-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+            <span className="font-semibold">⚠️ {validationError}</span>
+          </div>
+        )}
 
         {/* Modal Body */}
         <div className="p-6 space-y-5">
@@ -71,25 +136,29 @@ export const ClaimReviewModal: React.FC<ClaimReviewModalProps> = ({
                   id: 'APPROVED',
                   label: '✓ Approve',
                   desc: 'Approve full claim',
+                  disabled: false,
                   activeClass:
                     'bg-[var(--status-approved)] border-[var(--status-approved)] text-white',
                 },
                 {
                   id: 'PARTIALLY_APPROVED',
                   label: '◑ Partial',
-                  desc: 'Approve some items',
+                  desc: isPartialDisabled ? 'Requires 2+ items' : 'Approve some items',
+                  disabled: isPartialDisabled,
                   activeClass: 'bg-[var(--brand-500)] border-[var(--brand-500)] text-white',
                 },
                 {
                   id: 'NEEDS_REVISION',
                   label: '↩ Revision',
                   desc: 'Request corrections',
+                  disabled: false,
                   activeClass: 'bg-amber-500 border-amber-500 text-white',
                 },
                 {
                   id: 'REJECTED',
                   label: '✕ Reject',
                   desc: 'Deny this claim',
+                  disabled: false,
                   activeClass:
                     'bg-[var(--status-rejected)] border-[var(--status-rejected)] text-white',
                 },
@@ -97,23 +166,34 @@ export const ClaimReviewModal: React.FC<ClaimReviewModalProps> = ({
                 <button
                   key={opt.id}
                   type="button"
-                  onClick={() => setReviewDecision(opt.id as any)}
+                  disabled={opt.disabled}
+                  onClick={() => handleDecisionChange(opt.id as any)}
                   className={`p-3 rounded-xl border text-left transition-all ${
-                    reviewDecision === opt.id
-                      ? `${opt.activeClass} shadow-sm ring-2 ring-offset-1 ring-[var(--brand-500)]/40`
-                      : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--brand-500)]/60'
+                    opt.disabled
+                      ? 'opacity-40 cursor-not-allowed bg-gray-100 border-gray-200 text-gray-400'
+                      : reviewDecision === opt.id
+                        ? `${opt.activeClass} shadow-sm ring-2 ring-offset-1 ring-[var(--brand-500)]/40`
+                        : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--brand-500)]/60 cursor-pointer'
                   }`}
                 >
                   <div
                     className={`text-sm font-bold ${
-                      reviewDecision === opt.id ? 'text-inherit' : 'text-[var(--text-primary)]'
+                      opt.disabled
+                        ? 'text-gray-400'
+                        : reviewDecision === opt.id
+                          ? 'text-inherit'
+                          : 'text-[var(--text-primary)]'
                     }`}
                   >
                     {opt.label}
                   </div>
                   <div
                     className={`text-[11px] mt-0.5 ${
-                      reviewDecision === opt.id ? 'opacity-80' : 'text-[var(--text-muted)]'
+                      opt.disabled
+                        ? 'text-gray-400'
+                        : reviewDecision === opt.id
+                          ? 'opacity-80'
+                          : 'text-[var(--text-muted)]'
                     }`}
                   >
                     {opt.desc}
@@ -241,12 +321,18 @@ export const ClaimReviewModal: React.FC<ClaimReviewModalProps> = ({
             Decision is logged to the Audit Trail.
           </p>
           <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={onClose} className="text-xs">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleClose}
+              className="text-xs"
+            >
               Cancel
             </Button>
             <Button
               size="sm"
-              onClick={() => onReviewSubmit(reviewDecision, reviewNote, deniedItemIds)}
+              onClick={handleSubmit}
               className="bg-[var(--brand-500)] hover:bg-[var(--brand-600)] text-white text-xs font-semibold px-5"
             >
               Confirm Decision

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Bell, CheckCircle2, AlertTriangle, XCircle, FileText, X } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { getSocket } from '@/lib/socket';
 import { useAuthStore } from '@/features/auth/store';
 
@@ -17,6 +18,7 @@ export interface NotificationItem {
 export const NotificationCenter: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const role = user?.role;
 
@@ -25,6 +27,14 @@ export const NotificationCenter: React.FC = () => {
       const socket = getSocket();
 
       socket.on('claim_status_updated', (data: any) => {
+        // Automatically invalidate React Query caches to instantly update tables & views in real-time across tabs!
+        queryClient.invalidateQueries({ queryKey: ['myClaims'] });
+        queryClient.invalidateQueries({ queryKey: ['claimDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['reviewerQueue'] });
+        queryClient.invalidateQueries({ queryKey: ['allClaims'] });
+        queryClient.invalidateQueries({ queryKey: ['adminDashboard'] });
+        queryClient.invalidateQueries({ queryKey: ['myStats'] });
+
         // Reviewers perform status updates, so they should NOT be notified about their own action
         if (role === 'reviewer') return;
 
@@ -51,6 +61,13 @@ export const NotificationCenter: React.FC = () => {
       });
 
       socket.on('claim_submitted', (data: any) => {
+        // Automatically invalidate React Query caches so Reviewer Queue & Provider Tables refresh instantly!
+        queryClient.invalidateQueries({ queryKey: ['reviewerQueue'] });
+        queryClient.invalidateQueries({ queryKey: ['myClaims'] });
+        queryClient.invalidateQueries({ queryKey: ['allClaims'] });
+        queryClient.invalidateQueries({ queryKey: ['adminDashboard'] });
+        queryClient.invalidateQueries({ queryKey: ['myStats'] });
+
         // ONLY Reviewers and Admins get "New Claim Submitted" notifications
         // Providers perform submissions, so they should NOT get notified about their own action
         if (role === 'provider') return;
@@ -74,7 +91,7 @@ export const NotificationCenter: React.FC = () => {
     } catch (err) {
       console.warn('Socket connection fallback active:', err);
     }
-  }, [role]);
+  }, [role, queryClient]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
