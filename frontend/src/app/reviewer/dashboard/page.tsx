@@ -83,7 +83,7 @@ export default function ReviewerDashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-3 gap-4">
         {[
           {
             label: 'Pending Review',
@@ -107,13 +107,6 @@ export default function ReviewerDashboardPage() {
             sub: 'Per claim',
             icon: <BarChart2 className="w-5 h-5 text-[var(--brand-500)]" />,
             color: 'text-[var(--brand-600)]',
-          },
-          {
-            label: 'Rules Engine',
-            value: 'Active',
-            sub: 'Auto-coverage calc',
-            icon: <Activity className="w-5 h-5 text-[var(--brand-500)]" />,
-            color: 'text-emerald-600',
           },
         ].map((card) => (
           <div key={card.label} className="bg-white p-4 rounded-xl border border-[var(--border)] shadow-xs">
