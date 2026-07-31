@@ -93,29 +93,59 @@ Administrators oversee system operations, financial disbursements, fraud detecti
 
 ## 💰 Dynamic Policy Engine Logic
 
-Claim payouts and patient responsibilities are calculated dynamically using historical policy data:
+The Policy Engine calculates insurance payouts and patient responsibility dynamically based on policy rules (**$500 Annual Deductible**, **80% Coverage Rate**, **$10,000 Annual Payout Limit**):
 
-$$\text{Remaining Deductible} = \max(0, \text{Annual Deductible} - \text{Deductible Already Met This Year})$$
+### 📐 Step-by-Step Calculation Rules
+1. **Remaining Deductible** = `Max(0, $500 - Prior Deductible Met This Year)`
+2. **Deductible Applied** = `Min(Approved Line Items Total, Remaining Deductible)`
+3. **Eligible Amount Post-Deductible** = `Max(0, Approved Line Items Total - Deductible Applied)`
+4. **Insurer Payout (80% Coinsurance)** = `Min(Eligible Amount * 80%, Remaining Annual Limit)`
+5. **Patient Responsibility** = `Total Claimed Amount - Insurer Payout`
 
-$$\text{Deductible Applied} = \min(\text{Approved Total}, \text{Remaining Deductible})$$
+---
 
-$$\text{After Deductible} = \max(0, \text{Approved Total} - \text{Deductible Applied})$$
+### 📊 Real-World 2-Claim Example
 
-$$\text{Raw Covered (80\%)} = \text{After Deductible} \times 0.80$$
+Assume a policyholder has a **$500 Annual Deductible** and **80% Coverage Rate**:
 
-$$\text{Insurer Payout} = \min(\text{Raw Covered}, \text{Remaining Annual Limit})$$
+#### 🔹 Claim 1 (Approved First — $800 Claimed)
+- **Approved Total**: $800.00
+- **Deductible Applied**: **$500.00** *(Satisfies full yearly $500 deductible)*
+- **Eligible Amount Post-Deductible**: $800.00 - $500.00 = $300.00
+- **Insurer Payout (80%)**: $300.00 × 80% = **$240.00**
+- **Patient Owes**: $800.00 - $240.00 = **$560.00** ($500 deductible + $60 coinsurance)
 
-$$\text{Patient Responsibility} = \text{Total Claimed} - \text{Insurer Payout}$$
+#### 🔹 Claim 2 (Approved Second — $330 Claimed)
+- **Approved Total**: $330.00
+- **Deductible Applied**: **$0.00** *(Yearly $500 deductible already satisfied by Claim 1)*
+- **Eligible Amount Post-Deductible**: $330.00
+- **Insurer Payout (80%)**: $330.00 × 80% = **$264.00**
+- **Patient Owes**: $330.00 - $264.00 = **$66.00** (20% coinsurance only)
 
 > [!NOTE]
-> **Approval Order Principle**: Deductible accumulation orders prior claims by **Approval Order** (`updatedAt`), ensuring that whichever claim is approved or partially approved first absorbs the annual deductible.
+> **Approval Order Principle**: Deductible accumulation orders prior claims by **Approval Order (`updatedAt`)**, ensuring that whichever claim is approved first absorbs the yearly deductible.
+
+---
+
+## 🚨 Rule-Based Fraud Detection Engine
+
+ClaimCare includes an automated, rule-based anomaly detection engine that evaluates every claim upon submission:
+
+1. **Procedure Code Benchmark**: Queries historical claims sharing the exact procedure code (e.g., `CPT-99214`).
+2. **3x Historical Average Threshold**: If a claim's `totalClaimed` exceeds **3× the historical average cost** for that procedure code, the claim is automatically flagged for audit.
+3. **Audit Flagging & Rationale**:
+   - Sets `flagged = true` on the Mongoose claim document.
+   - Saves a detailed `flagReason` explaining the variance (e.g., *"Claimed amount ($4,500.00) exceeds 3x procedure code historical average ($1,200.00)"*).
+4. **Visibility & Admin Override**:
+   - **Internal Only**: Fraud badges are visible exclusively to **Medical Reviewers** and **Platform Administrators** (hidden from providers to prevent workflow manipulation).
+   - **Admin Unflagging**: Administrators can inspect the audit trail and click **Unflag Claim** to clear false positives with full audit logging.
 
 ---
 
 ## 🚀 Getting Started & Local Setup
 
 ### Prerequisites
-- **Node.js** (v20+ recommended)
+- **Node.js** (v22+ recommended)
 - **MongoDB** (Local instance or Atlas URI)
 
 ---
@@ -136,9 +166,6 @@ MONGO_URI=mongodb://127.0.0.1:27017/claimcare
 JWT_SECRET=super_secret_jwt_key_claimcare_2026
 NODE_ENV=development
 EOT
-
-# Seed database with demo accounts & policy configs
-npm run seed
 
 # Run Backend Unit Tests (Coverage Engine)
 npm run test
@@ -168,16 +195,6 @@ EOT
 npm run dev
 ```
 *Frontend application will start at `http://localhost:3000`.*
-
----
-
-## 🔑 Demo Login Accounts
-
-| Role | Email | Password | Dashboard URL |
-| :--- | :--- | :--- | :--- |
-| **Healthcare Provider** | `provider@claimcare.health` | `provider123` | `http://localhost:3000/provider/dashboard` |
-| **Medical Reviewer** | `reviewer@claimcare.health` | `reviewer123` | `http://localhost:3000/reviewer/dashboard` |
-| **Platform Administrator** | `admin@claimcare.health` | `admin123` | `http://localhost:3000/admin/dashboard` |
 
 ---
 
